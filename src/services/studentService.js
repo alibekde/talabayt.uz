@@ -111,69 +111,74 @@ class StudentService {
       throw err;
     }
 
-    // Telegram user ID orqali bitta foydalanuvchi faqat 1 marta ro'yxatdan o'tishi tekshiruvi
-    if (validated.telegramUserId) {
-      const existingTg = await prisma.student.findUnique({
-        where: { telegramUserId: String(validated.telegramUserId) },
+    // Atomic transaction for database consistency and race-condition prevention
+    const newStudent = await prisma.$transaction(async (tx) => {
+      // 1. Telegram user ID duplicate check
+      if (validated.telegramUserId) {
+        const existingTg = await tx.student.findUnique({
+          where: { telegramUserId: String(validated.telegramUserId) },
+        });
+        if (existingTg) {
+          const error = new Error('⚠️ Siz allaqachon ro‘yxatdan o‘tgansiz.');
+          error.statusCode = 409;
+          error.isCustom = true;
+          throw error;
+        }
+      }
+
+      // 2. Duplicate student prevention: firstName + lastName + fatherName + phone
+      const existing = await tx.student.findFirst({
+        where: {
+          firstName: { equals: validated.firstName.trim(), mode: 'insensitive' },
+          lastName: { equals: validated.lastName.trim(), mode: 'insensitive' },
+          fatherName: { equals: validated.fatherName.trim(), mode: 'insensitive' },
+          phone: normalizedPhone,
+        },
       });
-      if (existingTg) {
-        const error = new Error('⚠️ Siz allaqachon ro‘yxatdan o‘tgansiz. Sizning ma’lumotlaringiz tizimda mavjud.');
+
+      if (existing) {
+        const error = new Error('⚠️ Bu talaba allaqachon tizimda mavjud.');
         error.statusCode = 409;
         error.isCustom = true;
         throw error;
       }
-    }
 
-    // Duplikat tekshirish: firstName + lastName + fatherName + phone
-    const existing = await prisma.student.findFirst({
-      where: {
-        firstName: { equals: validated.firstName.trim(), mode: 'insensitive' },
-        lastName: { equals: validated.lastName.trim(), mode: 'insensitive' },
-        fatherName: { equals: validated.fatherName.trim(), mode: 'insensitive' },
-        phone: normalizedPhone,
-      },
-    });
+      // 3. Room capacity check (Strict maximum 3 students per room)
+      const currentRoomCount = await tx.student.count({
+        where: { roomNumber: parsedRoom },
+      });
 
-    if (existing) {
-      const error = new Error('⚠️ Ushbu talaba tizimda allaqachon mavjud.');
-      error.statusCode = 409;
-      error.isCustom = true;
-      throw error;
-    }
+      if (currentRoomCount >= 3) {
+        const error = new Error('❌ Bu xona to‘liq band. Xonada maksimal 3 ta talaba bo‘lishi mumkin.');
+        error.statusCode = 400;
+        error.isCustom = true;
+        throw error;
+      }
 
-    // 1 ta xonada ko'pi bilan 3 ta talaba bo'lishi shart
-    const currentRoomCount = await prisma.student.count({
-      where: { roomNumber: parsedRoom },
-    });
+      const created = await tx.student.create({
+        data: {
+          telegramUserId: validated.telegramUserId ? String(validated.telegramUserId) : null,
+          firstName: validated.firstName.trim(),
+          lastName: validated.lastName.trim(),
+          fatherName: validated.fatherName.trim(),
+          direction: validated.direction.trim(),
+          phone: normalizedPhone,
+          roomNumber: parsedRoom,
+          status: 'INSIDE',
+          lastMovementAt: new Date(),
+        },
+      });
 
-    if (currentRoomCount >= 3) {
-      const error = new Error('❌ Bu xona to‘liq band. Xonada maksimal 3 ta talaba bo‘lishi mumkin.');
-      error.statusCode = 400;
-      error.isCustom = true;
-      throw error;
-    }
+      // Boshlang'ich kirdi logi
+      await tx.movementLog.create({
+        data: {
+          studentId: created.id,
+          type: 'CHECK_IN',
+          note: 'Dastlabki ro\'yxatga olish',
+        },
+      });
 
-    const newStudent = await prisma.student.create({
-      data: {
-        telegramUserId: validated.telegramUserId ? String(validated.telegramUserId) : null,
-        firstName: validated.firstName.trim(),
-        lastName: validated.lastName.trim(),
-        fatherName: validated.fatherName.trim(),
-        direction: validated.direction.trim(),
-        phone: normalizedPhone,
-        roomNumber: parsedRoom,
-        status: 'INSIDE',
-        lastMovementAt: new Date(),
-      },
-    });
-
-    // Boshlang'ich kirdi logi
-    await prisma.movementLog.create({
-      data: {
-        studentId: newStudent.id,
-        type: 'CHECK_IN',
-        note: 'Dastlabki ro\'yxatga olish',
-      },
+      return created;
     });
 
     // Telegram adminlarga bildirishnoma yuborish

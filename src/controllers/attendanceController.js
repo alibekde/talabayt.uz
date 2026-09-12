@@ -89,7 +89,41 @@ class AttendanceController {
   }
 
   /**
-   * POST /api/attendance/mark
+   * GET /api/attendance/:id/present
+   */
+  async getAttendancePresent(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await attendanceService.getAttendanceById(id);
+      res.status(200).json({
+        success: true,
+        data: data.attendedStudents,
+        total: data.attendedCount,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/attendance/:id/absent
+   */
+  async getAttendanceAbsent(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await attendanceService.getAttendanceById(id);
+      res.status(200).json({
+        success: true,
+        data: data.absentStudents,
+        total: data.absentCount,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/attendance/mark yoki POST /api/attendance/:id/check
    * Talaba davomatdan o'tishi (Web/API orqali sinash yoki integratsiya uchun)
    */
   async markAttendance(req, res, next) {

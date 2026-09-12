@@ -94,7 +94,7 @@ const addStudentWizard = new WizardScene(
     };
 
     await ctx.reply(
-      '1/6\n👤 Ismini kiriting:',
+      '1/6\nIsmingizni kiriting:',
       Markup.keyboard([['❌ Bekor qilish']]).resize()
     );
     return ctx.wizard.next();
@@ -113,7 +113,7 @@ const addStudentWizard = new WizardScene(
     }
 
     ctx.wizard.state.student.firstName = text;
-    await ctx.reply('2/6\n👤 Familiyasini kiriting:', getStepKeyboard());
+    await ctx.reply('2/6\nFamiliyangizni kiriting:', getStepKeyboard());
     return ctx.wizard.next();
   },
 
@@ -125,7 +125,7 @@ const addStudentWizard = new WizardScene(
       return ctx.scene.leave();
     }
     if (text === '⬅️ Orqaga') {
-      await ctx.reply('1/6\n👤 Ismini kiriting:', Markup.keyboard([['❌ Bekor qilish']]).resize());
+      await ctx.reply('1/6\nIsmingizni kiriting:', Markup.keyboard([['❌ Bekor qilish']]).resize());
       return ctx.wizard.back();
     }
     if (text.length < 2) {
@@ -134,7 +134,7 @@ const addStudentWizard = new WizardScene(
     }
 
     ctx.wizard.state.student.lastName = text;
-    await ctx.reply('3/6\n👨 Otasining ismini kiriting:', getStepKeyboard());
+    await ctx.reply('3/6\nOtangizning ismini kiriting:', getStepKeyboard());
     return ctx.wizard.next();
   },
 
@@ -146,7 +146,7 @@ const addStudentWizard = new WizardScene(
       return ctx.scene.leave();
     }
     if (text === '⬅️ Orqaga') {
-      await ctx.reply('2/6\n👤 Familiyasini kiriting:', getStepKeyboard());
+      await ctx.reply('2/6\nFamiliyangizni kiriting:', getStepKeyboard());
       return ctx.wizard.back();
     }
     if (text.length < 2) {
@@ -155,7 +155,7 @@ const addStudentWizard = new WizardScene(
     }
 
     ctx.wizard.state.student.fatherName = text;
-    await ctx.reply('4/6\n🎓 Yo‘nalishini kiriting:', getStepKeyboard());
+    await ctx.reply('4/6\nYo\'nalishingizni kiriting:', getStepKeyboard());
     return ctx.wizard.next();
   },
 
@@ -167,7 +167,7 @@ const addStudentWizard = new WizardScene(
       return ctx.scene.leave();
     }
     if (text === '⬅️ Orqaga') {
-      await ctx.reply('3/6\n👨 Otasining ismini kiriting:', getStepKeyboard());
+      await ctx.reply('3/6\nOtangizning ismini kiriting:', getStepKeyboard());
       return ctx.wizard.back();
     }
     if (text.length < 2) {
@@ -177,7 +177,7 @@ const addStudentWizard = new WizardScene(
 
     ctx.wizard.state.student.direction = text;
     await ctx.reply(
-      '5/6\n📱 Telefon raqamini kiriting (masalan: +998901234567) yoki quyidagi tugmani bosing:',
+      '5/6\nTelefon raqamingizni kiriting (masalan: +998901234567) yoki quyidagi tugmani bosing:',
       getStepKeyboard(true)
     );
     return ctx.wizard.next();
@@ -196,7 +196,7 @@ const addStudentWizard = new WizardScene(
         return ctx.scene.leave();
       }
       if (text === '⬅️ Orqaga') {
-        await ctx.reply('4/6\n🎓 Yo‘nalishini kiriting:', getStepKeyboard());
+        await ctx.reply('4/6\nYo\'nalishingizni kiriting:', getStepKeyboard());
         return ctx.wizard.back();
       }
       phoneInput = text;
@@ -212,7 +212,7 @@ const addStudentWizard = new WizardScene(
     }
 
     ctx.wizard.state.student.phone = normalizedPhone;
-    await ctx.reply('6/6\n🏠 Xona raqamini kiriting (masalan: 101, 205, 420):', getStepKeyboard());
+    await ctx.reply('6/6\nXona raqamingizni kiriting (masalan: 101, 205, 420):', getStepKeyboard());
     return ctx.wizard.next();
   },
 
@@ -224,7 +224,7 @@ const addStudentWizard = new WizardScene(
       return ctx.scene.leave();
     }
     if (text === '⬅️ Orqaga') {
-      await ctx.reply('5/6\n📱 Telefon raqamini kiriting:', getStepKeyboard(true));
+      await ctx.reply('5/6\nTelefon raqamingizni kiriting:', getStepKeyboard(true));
       return ctx.wizard.back();
     }
 
@@ -252,17 +252,25 @@ const addStudentWizard = new WizardScene(
     const s = ctx.wizard.state.student;
 
     const summaryText =
-      `📋 TALABA MA’LUMOTLARI\n\n` +
-      `👤 Ismi: ${s.firstName}\n` +
-      `👤 Familiyasi: ${s.lastName}\n` +
-      `👨 Otasining ismi: ${s.fatherName}\n` +
-      `🎓 Yo‘nalishi: ${s.direction}\n` +
-      `📱 Telefon: ${s.phone}\n` +
-      `🏠 Xona: ${s.roomNumber}\n\n` +
-      `Ma’lumotlarni saqlash kerakmi?`;
+      `📋 MA'LUMOTLARINGIZ\n\n` +
+      `Ismi: ${s.firstName}\n` +
+      `Familiyasi: ${s.lastName}\n` +
+      `Otasining ismi: ${s.fatherName}\n` +
+      `Yo'nalishi: ${s.direction}\n` +
+      `Telefon: ${s.phone}\n` +
+      `Xona: ${s.roomNumber}\n\n` +
+      `Ma'lumotlarni saqlaysizmi?`;
+
+    const confirmButtons = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('✅ Tasdiqlash', 'save_student'),
+        Markup.button.callback('✏️ Tahrirlash', 'edit_student'),
+      ],
+      [Markup.button.callback('❌ Bekor qilish', 'cancel_student')],
+    ]);
 
     await ctx.reply('Ma\'lumotlar qabul qilindi.', getMainKeyboardForUser(ctx.from?.id));
-    await ctx.reply(summaryText, getConfirmKeyboard());
+    await ctx.reply(summaryText, confirmButtons);
     return ctx.wizard.next();
   },
 
@@ -290,16 +298,12 @@ addStudentWizard.action('save_student', async (ctx) => {
     const saved = await studentService.createStudent(s);
     await ctx.editMessageText(
       `✅ Ro'yxatdan o'tish muvaffaqiyatli yakunlandi!\n\n` +
-      `Sizning ma’lumotlaringiz tizimga saqlandi:\n` +
-      `👤 ${saved.lastName} ${saved.firstName} ${saved.fatherName}\n` +
-      `🎓 ${saved.direction}\n` +
-      `🏠 Xona: ${saved.roomNumber}\n` +
-      `📱 Telefon: ${saved.phone}`
+      `Sizning ma'lumotlaringiz tizimga saqlandi.`
     );
     await ctx.reply('Bosh menyu:', getMainKeyboardForUser(ctx.from?.id));
   } catch (error) {
     logger.error('Bot save_student xatosi:', error.message);
-    if (error.statusCode === 409 || error.message.includes('allaqachon mavjud') || error.message.includes('allaqachon ro‘yxatdan o‘tgansiz')) {
+    if (error.statusCode === 409 || error.message.includes('allaqachon mavjud') || error.message.includes('allaqachon ro‘yxatdan o‘tgansiz') || error.message.includes('allaqachon ro\'yxatdan o\'tgansiz')) {
       await ctx.reply(`⚠️ ${error.message}`, getMainKeyboardForUser(ctx.from?.id));
     } else {
       await ctx.reply(`❌ Xatolik: ${error.message || 'Saqlashda xatolik yuz berdi.'}`, getMainKeyboardForUser(ctx.from?.id));

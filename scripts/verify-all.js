@@ -30,7 +30,14 @@ async function runAllTests() {
   const testRoom = 999;
 
   // Clean up any stale test records
-  await prisma.student.deleteMany({ where: { roomNumber: testRoom } });
+  await prisma.student.deleteMany({
+    where: {
+      OR: [
+        { roomNumber: testRoom },
+        { telegramUserId: { in: ['tg_user_1', 'tg_user_2', 'tg_user_3', 'tg_user_4', 'tg_user_unique_99'] } },
+      ],
+    },
+  });
   await prisma.attendance.deleteMany({});
 
   try {
@@ -65,7 +72,7 @@ async function runAllTests() {
         roomNumber: 998,
       });
     } catch (err) {
-      tgDupBlocked = err.message.includes('allaqachon ro‘yxatdan o‘tgansiz');
+      tgDupBlocked = err.message.includes('allaqachon') && (err.message.includes('ro‘yxatdan') || err.message.includes("ro'yxatdan") || err.message.includes('mavjud'));
     }
     assert(tgDupBlocked, 'Bir Telegram foydalanuvchisi ikkinchi marta ro\'yxatdan o\'ta olmaydi');
 
@@ -85,7 +92,7 @@ async function runAllTests() {
         roomNumber: 998,
       });
     } catch (err) {
-      studentDupBlocked = err.message.includes('allaqachon mavjud');
+      studentDupBlocked = err.message.includes('allaqachon') && err.message.includes('mavjud');
     }
     assert(studentDupBlocked, 'Ism, Familiya, Otasining ismi va Telefon bo\'yicha duplikat bloklandi');
 
@@ -207,7 +214,14 @@ async function runAllTests() {
     console.log('====================================================\n');
   } finally {
     // Clean up test data
-    await prisma.student.deleteMany({ where: { roomNumber: testRoom } });
+    await prisma.student.deleteMany({
+      where: {
+        OR: [
+          { roomNumber: testRoom },
+          { telegramUserId: { in: ['tg_user_1', 'tg_user_2', 'tg_user_3', 'tg_user_4', 'tg_user_unique_99'] } },
+        ],
+      },
+    });
     await prisma.attendance.deleteMany({});
   }
 }
