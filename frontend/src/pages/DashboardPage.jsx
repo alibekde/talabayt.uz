@@ -115,74 +115,74 @@ export default function DashboardPage() {
       {/* 4 Main Summary Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Students */}
-        <div className="p-4 sm:p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-500">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
               Jami talabalar
             </span>
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+            <div className="p-2 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
               <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
               {loading ? '...' : stats.totalStudents}
             </span>
-            <span className="text-xs text-gray-500 font-medium">nafar</span>
+            <span className="text-xs text-gray-500 dark:text-slate-400 font-medium">nafar</span>
           </div>
         </div>
 
         {/* Inside Students */}
-        <div className="p-4 sm:p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-600">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               🟢 Yotoqxonada
             </span>
-            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
               <DoorOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-700 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 tracking-tight">
               {loading ? '...' : stats.insideStudents || 0}
             </span>
-            <span className="text-xs text-emerald-600 font-medium">nafar</span>
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">nafar</span>
           </div>
         </div>
 
         {/* Outside Students */}
-        <div className="p-4 sm:p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-rose-600">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
               🔴 Tashqarida
             </span>
-            <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
+            <div className="p-2 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-xl">
               <DoorClosed className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-black text-rose-700 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-rose-700 dark:text-rose-400 tracking-tight">
               {loading ? '...' : stats.outsideStudents || 0}
             </span>
-            <span className="text-xs text-rose-600 font-medium">nafar</span>
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">nafar</span>
           </div>
         </div>
 
         {/* Rooms & Occupancy */}
-        <div className="p-4 sm:p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600">
+            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
               Band xonalar
             </span>
-            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl">
               <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl sm:text-3xl font-black text-indigo-900 tracking-tight">
+            <span className="text-2xl sm:text-3xl font-black text-indigo-900 dark:text-indigo-300 tracking-tight">
               {loading ? '...' : stats.totalRooms}
             </span>
-            <span className="text-xs text-indigo-600 font-medium">ta xona</span>
+            <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">ta xona</span>
           </div>
         </div>
       </div>
@@ -190,17 +190,17 @@ export default function DashboardPage() {
       {/* 📊 Visual Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Chart 1: Qavatlar bo'yicha talabalar soni (Bar Chart) */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm space-y-3 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+              <div className="p-2 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
                 <BarChart3 className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-gray-900">
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                   Qavatlar Bo'yicha Taqsimot
                 </h2>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-gray-500 dark:text-slate-400">
                   Har bir qavatdagi talabalar va xonada bo'lganlar
                 </p>
               </div>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
 
           <div className="h-64 w-full pt-2">
             {stats.floorStats.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-xs text-gray-400">
+              <div className="h-full flex items-center justify-center text-xs text-gray-400 dark:text-slate-500">
                 Grafik uchun ma'lumot mavjud emas
               </div>
             ) : (
@@ -218,7 +218,7 @@ export default function DashboardPage() {
                   <XAxis dataKey="floor" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #334155', color: '#fff', fontSize: '12px' }}
                   />
                   <Bar dataKey="students" name="Jami talabalar" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                   <Bar dataKey="inside" name="Xonadagilar" fill="#10b981" radius={[6, 6, 0, 0]} />
@@ -229,17 +229,17 @@ export default function DashboardPage() {
         </div>
 
         {/* Chart 2: Yotoqxona Harakati & Nisbati (Donut Chart) */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm space-y-3 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
                 <PieIcon className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-gray-900">
+                <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                   Harakat va Davomat Nisbati
                 </h2>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-gray-500 dark:text-slate-400">
                   Hozir yotoqxonada bo'lganlar va chiqib ketganlar ulushi
                 </p>
               </div>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
 
           <div className="h-64 w-full flex items-center justify-center">
             {stats.totalStudents === 0 ? (
-              <div className="text-xs text-gray-400">Harakat ma'lumotlari mavjud emas</div>
+              <div className="text-xs text-gray-400 dark:text-slate-500">Harakat ma'lumotlari mavjud emas</div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
+                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #334155', color: '#fff', fontSize: '12px' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" />
                 </PieChart>
@@ -280,33 +280,33 @@ export default function DashboardPage() {
       {/* Grid of Rooms & Yo'nalishlar & Logs */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Yo'nalishlar taqsimoti */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm space-y-3 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl">
                 <GraduationCap className="w-4 h-4" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 Yo'nalishlar Bo'yicha
               </h2>
             </div>
           </div>
 
           {stats.directionStats.length === 0 ? (
-            <div className="py-8 text-center text-xs text-gray-400">
+            <div className="py-8 text-center text-xs text-gray-400 dark:text-slate-500">
               Yo'nalish ma'lumotlari mavjud emas.
             </div>
           ) : (
             <div className="space-y-2.5">
               {stats.directionStats.map((dir, idx) => (
                 <div key={idx} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                  <div className="flex items-center justify-between text-xs font-semibold text-gray-700 dark:text-slate-300">
                     <span className="truncate pr-2">{dir.name}</span>
-                    <span className="text-blue-600">{dir.count} ta</span>
+                    <span className="text-blue-600 dark:text-blue-400">{dir.count} ta</span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-blue-600 dark:bg-blue-500 rounded-full"
                       style={{
                         width: `${Math.min(100, (dir.count / (stats.totalStudents || 1)) * 100)}%`,
                       }}
@@ -319,26 +319,26 @@ export default function DashboardPage() {
         </div>
 
         {/* Xonalar (Patoklar) Quick Grid */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm space-y-3 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+              <div className="p-2 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">
                 <Building2 className="w-4 h-4" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 Xonalar Holati
               </h2>
             </div>
             <Link
               to="/rooms"
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 inline-flex items-center gap-1"
             >
               Barchasi <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {stats.roomStats.length === 0 ? (
-            <div className="py-8 text-center text-xs text-gray-400">
+            <div className="py-8 text-center text-xs text-gray-400 dark:text-slate-500">
               Xonalar mavjud emas.
             </div>
           ) : (
@@ -347,13 +347,13 @@ export default function DashboardPage() {
                 <Link
                   key={room.roomNumber}
                   to="/rooms"
-                  className="p-3 bg-slate-50 border border-slate-200/70 rounded-2xl text-center hover:border-blue-400 transition-all block group"
+                  className="p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200/70 dark:border-slate-700 rounded-2xl text-center hover:border-blue-400 dark:hover:border-blue-500 transition-all block group"
                 >
-                  <p className="text-[10px] font-semibold text-slate-500">{room.floor}-qavat</p>
-                  <p className="text-base font-black text-slate-900 group-hover:text-blue-600">
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{room.floor}-qavat</p>
+                  <p className="text-base font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
                     🏠 {room.roomNumber}
                   </p>
-                  <p className="text-[11px] text-blue-600 font-bold mt-0.5">
+                  <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-0.5">
                     {room.count}/4 talaba
                   </p>
                 </Link>
@@ -363,26 +363,26 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Movement Logs Widget */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm space-y-3">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm space-y-3 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
+              <div className="p-2 bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 rounded-xl">
                 <History className="w-4 h-4" />
               </div>
-              <h2 className="text-sm font-bold text-gray-900">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 So'nggi Harakatlar
               </h2>
             </div>
             <Link
               to="/logs"
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
+              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 inline-flex items-center gap-1"
             >
               Tarix <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           {(!Array.isArray(recentLogs) || recentLogs.length === 0) ? (
-            <div className="py-8 text-center text-xs text-gray-400">
+            <div className="py-8 text-center text-xs text-gray-400 dark:text-slate-500">
               Hozircha harakatlar tarixi yo'q.
             </div>
           ) : (
@@ -394,7 +394,7 @@ export default function DashboardPage() {
                 return (
                   <div
                     key={log.id}
-                    className="p-2.5 bg-slate-50 rounded-xl flex items-center justify-between gap-2 text-xs"
+                    className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl flex items-center justify-between gap-2 text-xs"
                   >
                     <div className="flex items-center gap-2 truncate">
                       <span
@@ -402,7 +402,7 @@ export default function DashboardPage() {
                           isCheckIn ? 'bg-emerald-500' : 'bg-rose-500'
                         }`}
                       />
-                      <span className="font-semibold text-gray-800 truncate">
+                      <span className="font-semibold text-gray-800 dark:text-slate-200 truncate">
                         {st ? `${st.lastName} ${st.firstName}` : 'Talaba'}
                       </span>
                     </div>
@@ -411,13 +411,13 @@ export default function DashboardPage() {
                       <span
                         className={`font-bold text-[10px] px-2 py-0.5 rounded-full ${
                           isCheckIn
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-rose-100 text-rose-800'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
+                            : 'bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-300'
                         }`}
                       >
                         {isCheckIn ? 'Kirdi' : 'Chiqdi'}
                       </span>
-                      <span className="text-[10px] text-gray-400 font-mono">
+                      <span className="text-[10px] text-gray-400 dark:text-slate-500 font-mono">
                         {formatTime(log.createdAt)}
                       </span>
                     </div>

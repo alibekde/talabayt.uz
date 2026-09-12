@@ -118,19 +118,19 @@ export default function ReportsPage() {
       {/* 3 Modern Export Format Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* PDF Export Card */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
-            <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl">
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 rounded-2xl">
               <FileText className="w-6 h-6" />
             </div>
-            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
               A4 FORMAT
             </span>
           </div>
 
           <div>
-            <h3 className="text-base font-bold text-gray-900">PDF Rasmiy Hisobot</h3>
-            <p className="text-xs text-gray-500 mt-1">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">PDF Rasmiy Hisobot</h3>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
               Unicode / UTF-8 qo'llab-quvvatlovchi, xonalar bo'yicha tartiblangan toza jadval
             </p>
           </div>
@@ -146,19 +146,19 @@ export default function ReportsPage() {
         </div>
 
         {/* Excel Export Card */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
-            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-2xl">
               <FileSpreadsheet className="w-6 h-6" />
             </div>
-            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
               .XLSX JADVAL
             </span>
           </div>
 
           <div>
-            <h3 className="text-base font-bold text-gray-900">Excel Elektron Jadvali</h3>
-            <p className="text-xs text-gray-500 mt-1">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">Excel Elektron Jadvali</h3>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
               Rangli sarlavhalar, muzlatilgan birinchi qator va avto-kenglik bilan
             </p>
           </div>
@@ -174,19 +174,19 @@ export default function ReportsPage() {
         </div>
 
         {/* Google Sheets Export Card */}
-        <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-4">
+        <div className="p-5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4">
           <div className="flex items-start justify-between">
-            <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-2xl">
               <Download className="w-6 h-6" />
             </div>
-            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
               CLOUD SYNC
             </span>
           </div>
 
           <div>
-            <h3 className="text-base font-bold text-gray-900">Google Spreadsheet</h3>
-            <p className="text-xs text-gray-500 mt-1">
+            <h3 className="text-base font-bold text-gray-900 dark:text-white">Google Spreadsheet</h3>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
               Google Sheets API orqali to'g'ridan-to'g'ri bulutli jadvalga batch yuklash
             </p>
           </div>
@@ -204,10 +204,10 @@ export default function ReportsPage() {
 
       {/* Google Sheets Live Link Box */}
       {sheetsResult && (
-        <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800">
+        <div className="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-200 transition-colors">
           <div>
             <p className="font-bold text-sm">✅ Google Sheets jadvaliga muvaffaqiyatli eksport qilindi!</p>
-            <p className="text-xs text-emerald-600 mt-0.5">Jami {sheetsResult.totalStudents} ta talaba ma'lumotlari yangilandi.</p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">Jami {sheetsResult.totalStudents} ta talaba ma'lumotlari yangilandi.</p>
           </div>
           <a
             href={sheetsResult.spreadsheetUrl}
@@ -222,43 +222,43 @@ export default function ReportsPage() {
 
       {/* Grouped Room Listings Preview */}
       {loading ? (
-        <div className="p-12 text-center text-gray-400 bg-white rounded-3xl border border-gray-100">
+        <div className="p-12 text-center text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800">
           Hisobot ma'lumotlari yuklanmoqda...
         </div>
       ) : report.totalStudents === 0 ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
-          <div className="inline-flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-gray-100 text-gray-400">
+        <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm transition-colors">
+          <div className="inline-flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500">
             <Users className="w-6 h-6" />
           </div>
-          <p className="text-sm font-bold text-gray-700">
+          <p className="text-sm font-bold text-gray-700 dark:text-slate-300">
             Hozircha hisobot yaratish uchun ma’lumot mavjud emas.
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
             Talabalar qo'shilgach, bu yerda xonalar bo'yicha tartiblangan hisobot paydo bo'ladi.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 px-1">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 px-1">
             Xonalar Bo'yicha Guruhlangan Ko'rinish ({report.rooms.length} ta xona)
           </h2>
 
           {report.rooms.map((room) => (
             <div
               key={room.roomNumber}
-              className="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden"
+              className="bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-colors"
             >
               {/* Room Header Bar */}
-              <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-gray-200">
+              <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-800/90 border-b border-gray-200 dark:border-slate-700">
                 <div className="flex items-center gap-3">
                   <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-600 text-white text-xs font-black">
                     {room.roomNumber}
                   </span>
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                       🏠 {room.roomNumber}-XONA
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-slate-400">
                       {Math.floor(room.roomNumber / 100) || 1}-qavat patogi | {room.studentsCount}/4 talaba
                     </p>
                   </div>
@@ -269,41 +269,41 @@ export default function ReportsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
-                    <tr className="bg-slate-200/90 text-xs font-black uppercase text-gray-900 border-b border-slate-300">
-                      <th className="py-2.5 px-4 w-12 text-center text-gray-900">№</th>
-                      <th className="py-2.5 px-4 text-gray-900">Familiyasi va Ismi</th>
-                      <th className="py-2.5 px-4 text-gray-900">Otasining ismi</th>
-                      <th className="py-2.5 px-4 text-gray-900">Yo‘nalishi</th>
-                      <th className="py-2.5 px-4 text-center text-gray-900">Telefon raqami</th>
-                      <th className="py-2.5 px-4 text-center text-gray-900">Holati</th>
+                    <tr className="bg-slate-200/90 dark:bg-slate-800/80 text-xs font-black uppercase text-gray-900 dark:text-slate-200 border-b border-slate-300 dark:border-slate-700">
+                      <th className="py-2.5 px-4 w-12 text-center text-gray-900 dark:text-slate-200">№</th>
+                      <th className="py-2.5 px-4 text-gray-900 dark:text-slate-200">Familiyasi va Ismi</th>
+                      <th className="py-2.5 px-4 text-gray-900 dark:text-slate-200">Otasining ismi</th>
+                      <th className="py-2.5 px-4 text-gray-900 dark:text-slate-200">Yo‘nalishi</th>
+                      <th className="py-2.5 px-4 text-center text-gray-900 dark:text-slate-200">Telefon raqami</th>
+                      <th className="py-2.5 px-4 text-center text-gray-900 dark:text-slate-200">Holati</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                     {room.students.map((st, sIdx) => (
-                      <tr key={st.id} className="hover:bg-slate-50/50">
-                        <td className="py-2.5 px-4 text-center font-medium text-gray-400">
+                      <tr key={st.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="py-2.5 px-4 text-center font-medium text-gray-400 dark:text-slate-500">
                           {sIdx + 1}
                         </td>
-                        <td className="py-2.5 px-4 font-bold text-gray-900">
+                        <td className="py-2.5 px-4 font-bold text-gray-900 dark:text-white">
                           {st.lastName} {st.firstName}
                         </td>
-                        <td className="py-2.5 px-4 text-gray-700">
+                        <td className="py-2.5 px-4 text-gray-700 dark:text-slate-300">
                           {st.fatherName}
                         </td>
-                        <td className="py-2.5 px-4 text-gray-600">
-                          <span className="inline-block px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700 font-medium">
+                        <td className="py-2.5 px-4 text-gray-600 dark:text-slate-400">
+                          <span className="inline-block px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                             {st.direction}
                           </span>
                         </td>
-                        <td className="py-2.5 px-4 text-center font-mono text-xs text-gray-600">
+                        <td className="py-2.5 px-4 text-center font-mono text-xs text-gray-600 dark:text-slate-400">
                           {st.phone}
                         </td>
                         <td className="py-2.5 px-4 text-center">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
                               st.status === 'INSIDE'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-rose-100 text-rose-800'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-rose-100 dark:bg-rose-900/60 text-rose-800 dark:text-rose-300'
                             }`}
                           >
                             {st.status === 'INSIDE' ? '🟢 Xonada' : '🔴 Chiqqan'}

@@ -115,10 +115,10 @@ export default function StudentsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            👨🎓 Talabalar Boshqaruvi
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            👨‍🎓 Talabalar Boshqaruvi
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
             Ro'yxatdagi barcha talabalar, xonalari va kirish-chiqish holati
           </p>
         </div>
@@ -132,10 +132,10 @@ export default function StudentsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-3">
+      <div className="p-4 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-3 transition-colors">
         {/* Search input */}
         <div className="relative flex-1 w-full">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 dark:text-slate-500">
             <Search className="w-4 h-4" />
           </div>
           <input
@@ -143,13 +143,13 @@ export default function StudentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Ism, familiya, ota ismi, yo'nalish, telefon yoki xona..."
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl placeholder-gray-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
           />
         </div>
 
         {/* Room Filter */}
         <div className="relative w-full sm:w-36">
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400 dark:text-slate-500">
             <Filter className="w-4 h-4" />
           </div>
           <input
@@ -157,7 +157,7 @@ export default function StudentsPage() {
             value={roomFilter}
             onChange={(e) => setRoomFilter(e.target.value)}
             placeholder="Xona filtri"
-            className="w-full pl-9 pr-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            className="w-full pl-9 pr-3 py-2.5 text-sm bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl placeholder-gray-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
           />
         </div>
 
@@ -166,7 +166,7 @@ export default function StudentsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            className="w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
           >
             <option value="">Barcha holatlar</option>
             <option value="INSIDE">🟢 Yotoqxonada</option>
@@ -178,7 +178,7 @@ export default function StudentsPage() {
         <button
           onClick={() => fetchStudents(pagination.page)}
           title="Yangilash"
-          className="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors hidden sm:block"
+          className="p-2.5 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors hidden sm:block"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -187,15 +187,15 @@ export default function StudentsPage() {
       {/* 1. Mobile Cards View (< lg screens) */}
       <div className="block lg:hidden space-y-3">
         {loading && students.length === 0 ? (
-          <div className="py-12 text-center text-gray-400 bg-white rounded-2xl">
+          <div className="py-12 text-center text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
             Yuklanmoqda...
           </div>
         ) : students.length === 0 ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-gray-100">
-            <div className="inline-flex items-center justify-center w-10 h-10 mb-2 rounded-full bg-gray-100 text-gray-400">
+          <div className="py-12 text-center bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
+            <div className="inline-flex items-center justify-center w-10 h-10 mb-2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500">
               <Users className="w-5 h-5" />
             </div>
-            <p className="text-sm font-semibold text-gray-600">Hozircha talabalar mavjud emas.</p>
+            <p className="text-sm font-semibold text-gray-600 dark:text-slate-400">Hozircha talabalar mavjud emas.</p>
           </div>
         ) : (
           students.map((st, idx) => {
@@ -206,50 +206,50 @@ export default function StudentsPage() {
             return (
               <div
                 key={st.id}
-                className="p-4 bg-white border border-gray-200/80 rounded-2xl shadow-sm space-y-3"
+                className="p-4 bg-white dark:bg-slate-900 border border-gray-200/80 dark:border-slate-800 rounded-2xl shadow-sm space-y-3 transition-colors"
               >
                 {/* Header info */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 text-slate-700 font-bold text-xs">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs">
                       {globalIdx}
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-gray-900">
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                         {st.lastName} {st.firstName}
                       </h3>
-                      <p className="text-xs text-gray-500">{st.fatherName}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">{st.fatherName}</p>
                     </div>
                   </div>
 
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-black bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
                     🏠 {st.roomNumber}
                   </span>
                 </div>
 
                 {/* Direction and Phone */}
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1 border-t border-gray-50">
-                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-1 border-t border-gray-50 dark:border-slate-800">
+                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                     🎓 {st.direction}
                   </span>
 
                   <a
                     href={`tel:${st.phone}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-xl font-bold font-mono hover:bg-emerald-100"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded-xl font-bold font-mono hover:bg-emerald-100 dark:hover:bg-emerald-950/60 transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5" /> {st.phone}
                   </a>
                 </div>
 
                 {/* Status Toggle & Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
                   <button
                     onClick={() => handleToggleMovement(st)}
                     disabled={isToggling}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       isInside
-                        ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                        : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/70'
+                        : 'bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-900/70'
                     }`}
                   >
                     {isInside ? (
@@ -266,14 +266,14 @@ export default function StudentsPage() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingStudent(st)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl"
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl transition-colors"
                       title="Tahrirlash"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeletingStudent(st)}
-                      className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl"
+                      className="p-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition-colors"
                       title="O'chirish"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -287,11 +287,11 @@ export default function StudentsPage() {
       </div>
 
       {/* 2. Desktop Table View (>= lg screens) */}
-      <div className="hidden lg:block bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+      <div className="hidden lg:block bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-gray-200 text-xs font-semibold uppercase tracking-wider text-gray-600">
+              <tr className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-300">
                 <th className="py-3.5 px-4 text-center w-12">№</th>
                 <th className="py-3.5 px-4">Ismi</th>
                 <th className="py-3.5 px-4">Familiyasi</th>
@@ -303,17 +303,17 @@ export default function StudentsPage() {
                 <th className="py-3.5 px-4 text-right">Amallar</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
+            <tbody className="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
               {loading && students.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-12 text-center text-gray-400">
+                  <td colSpan="9" className="py-12 text-center text-gray-400 dark:text-slate-500">
                     Yuklanmoqda...
                   </td>
                 </tr>
               ) : students.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-12 text-center text-gray-500">
-                    <div className="inline-flex items-center justify-center w-10 h-10 mb-2 rounded-full bg-gray-100 text-gray-400">
+                  <td colSpan="9" className="py-12 text-center text-gray-500 dark:text-slate-400">
+                    <div className="inline-flex items-center justify-center w-10 h-10 mb-2 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500">
                       <Users className="w-5 h-5" />
                     </div>
                     <p className="text-sm font-medium">Hozircha talabalar mavjud emas.</p>
@@ -328,32 +328,32 @@ export default function StudentsPage() {
                   return (
                     <tr
                       key={st.id}
-                      className="hover:bg-blue-50/40 transition-colors"
+                      className="hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition-colors"
                     >
-                      <td className="py-3.5 px-4 text-center font-medium text-gray-500">
+                      <td className="py-3.5 px-4 text-center font-medium text-gray-500 dark:text-slate-400">
                         {globalIdx}
                       </td>
-                      <td className="py-3.5 px-4 font-semibold text-gray-900">
+                      <td className="py-3.5 px-4 font-semibold text-gray-900 dark:text-white">
                         {st.firstName}
                       </td>
-                      <td className="py-3.5 px-4 font-semibold text-gray-900">
+                      <td className="py-3.5 px-4 font-semibold text-gray-900 dark:text-white">
                         {st.lastName}
                       </td>
-                      <td className="py-3.5 px-4 text-gray-700">
+                      <td className="py-3.5 px-4 text-gray-700 dark:text-slate-300">
                         {st.fatherName}
                       </td>
-                      <td className="py-3.5 px-4 text-gray-600">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                      <td className="py-3.5 px-4 text-gray-600 dark:text-slate-400">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                           {st.direction}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-center text-gray-600 font-mono text-xs">
-                        <a href={`tel:${st.phone}`} className="hover:underline text-blue-600">
+                      <td className="py-3.5 px-4 text-center text-gray-600 dark:text-slate-400 font-mono text-xs">
+                        <a href={`tel:${st.phone}`} className="hover:underline text-blue-600 dark:text-blue-400">
                           {st.phone}
                         </a>
                       </td>
                       <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300">
                           🏠 {st.roomNumber}
                         </span>
                       </td>
@@ -363,8 +363,8 @@ export default function StudentsPage() {
                           disabled={isToggling}
                           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-transform hover:scale-105 ${
                             isInside
-                              ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
-                              : 'bg-rose-100 text-rose-800 hover:bg-rose-200'
+                              ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900/70'
+                              : 'bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 hover:bg-rose-200 dark:hover:bg-rose-900/70'
                           }`}
                         >
                           {isInside ? (
@@ -383,14 +383,14 @@ export default function StudentsPage() {
                           <button
                             onClick={() => setEditingStudent(st)}
                             title="Tahrirlash"
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeletingStudent(st)}
                             title="O'chirish"
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-1.5 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

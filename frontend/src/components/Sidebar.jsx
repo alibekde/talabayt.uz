@@ -1,10 +1,12 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, History, FileBarChart, LogOut, Home, X } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, History, FileBarChart, LogOut, Home, X, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Sidebar({ isOpen, onClose }) {
   const { admin, logout } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -80,7 +82,7 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         {/* Admin Info & Logout Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/50">
+        <div className="p-4 border-t border-slate-800 dark:border-slate-800 bg-slate-950/50">
           <div className="flex items-center justify-between mb-3">
             <div className="truncate">
               <p className="text-xs text-slate-400">Admin</p>
@@ -88,6 +90,14 @@ export default function Sidebar({ isOpen, onClose }) {
                 {admin?.username || 'Admin'}
               </p>
             </div>
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={isDark ? "Yorug' rejimga o'tish" : "Tungi rejimga o'tish"}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-yellow-400 transition-colors flex items-center justify-center shadow-inner"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-300" />}
+            </button>
           </div>
           <button
             onClick={handleLogout}

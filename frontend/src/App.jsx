@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { ToastProvider } from './components/Toast';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
@@ -14,14 +15,15 @@ import ReportsPage from './pages/ReportsPage';
 
 function ProtectedLayout() {
   const { admin, loading } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
+      <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-white">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-slate-400">Yuklanmoqda...</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Yuklanmoqda...</p>
         </div>
       </div>
     );
@@ -32,24 +34,30 @@ function ProtectedLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex transition-colors duration-200">
       {/* Sidebar Navigation (Desktop & Tablet Drawer) */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
         {/* Mobile Top Header Bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white/90 backdrop-blur-md border-b border-gray-200 lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 lg:hidden transition-colors">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-2 -ml-1 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+            className="p-2 -ml-1 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Menu className="w-6 h-6" />
           </button>
-          <span className="font-extrabold text-sm text-gray-900 tracking-tight">
+          <span className="font-extrabold text-sm text-gray-900 dark:text-white tracking-tight">
             🏠 YOTOQXONA TIZIMI
           </span>
-          <div className="w-8" />
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl text-yellow-500 dark:text-yellow-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            title={isDark ? "Yorug' rejim" : "Tungi rejim"}
+          >
+            {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-indigo-600" />}
+          </button>
         </header>
 
         {/* Page Content */}
@@ -73,15 +81,17 @@ function ProtectedLayout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/*" element={<ProtectedLayout />} />
-          </Routes>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/*" element={<ProtectedLayout />} />
+            </Routes>
+          </Router>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
