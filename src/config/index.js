@@ -13,6 +13,7 @@ module.exports = {
     .map((id) => id.trim())
     .filter(Boolean),
   webhookUrl: process.env.WEBHOOK_URL || '',
+  webAppUrl: process.env.WEBAPP_URL || 'https://talabayt-uz.vercel.app',
 
   // Google Sheets
   google: {

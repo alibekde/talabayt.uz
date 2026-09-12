@@ -80,6 +80,17 @@ function ProtectedLayout() {
 }
 
 export default function App() {
+  React.useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      try {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+      } catch (e) {
+        console.log('Telegram WebApp init notice:', e);
+      }
+    }
+  }, []);
+
   return (
     <ThemeProvider>
       <AuthProvider>

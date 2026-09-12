@@ -4,6 +4,7 @@ const logger = require('../utils/logger');
 const studentService = require('../services/studentService');
 const reportService = require('../services/reportService');
 const googleSheetsService = require('../services/googleSheetsService');
+const notificationService = require('../services/notificationService');
 const {
   addStudentWizard,
   searchWizard,
@@ -23,6 +24,7 @@ function initBot() {
   }
 
   bot = new Telegraf(config.botToken);
+  notificationService.setBotInstance(bot);
 
   // Session & Stage Setup
   const stage = new Scenes.Stage([addStudentWizard, searchWizard, roomDetailWizard]);
@@ -39,7 +41,7 @@ function initBot() {
         `🏠 YOTOQXONA TALABALARI (ADMIN PANEL)\n\n` +
         `Assalomu alaykum, Hurmatli Admin!\n` +
         `Siz to'liq administratorlik huquqiga egasiz.\n\n` +
-        `Quyidagi bo'limlardan birini tanlang yoki /admin buyrug'idan foydalaning:`;
+        `Quyidagi bo'limlardan birini tanlang yoki [🌐 Web Admin Panel] tugmasi orqali to'g'ridan-to'g'ri boshqaruv panelini oching:`;
       await ctx.reply(adminText, getAdminKeyboard());
     } else {
       const userText =
@@ -67,6 +69,42 @@ function initBot() {
         { parse_mode: 'HTML', ...getUserKeyboard() }
       );
     }
+  });
+
+  // 🌐 Web Admin Panel buyrug'i va tugmasi
+  bot.hears('🌐 Web Admin Panel', async (ctx) => {
+    const userId = ctx.from?.id;
+    if (!isAdmin(userId)) {
+      return ctx.reply('❌ Ushbu bo\'lim faqat Admin uchun mo\'ljallangan.', getUserKeyboard());
+    }
+    const webUrl = config.webAppUrl || 'https://talabayt-uz.vercel.app';
+    await ctx.reply(
+      `🌐 <b>YOTOQXONA WEB ADMIN PANELI</b>\n\n` +
+      `Web panel orqali barcha talabalar, xonalar (patoklar), jonli statistika va eksport hisobotlarini to'liq boshqarishingiz mumkin.\n\n` +
+      `🔗 <b>Manzil:</b> ${webUrl}`,
+      {
+        parse_mode: 'HTML',
+        ...Markup.inlineKeyboard([
+          [Markup.button.webApp('🌐 Web Panelni Telegram ichida ochish', webUrl)],
+          [Markup.button.url('🔗 Brauzerda ochish', webUrl)],
+        ]),
+      }
+    );
+  });
+
+  bot.command('webapp', async (ctx) => {
+    const userId = ctx.from?.id;
+    if (!isAdmin(userId)) {
+      return ctx.reply('❌ Ushbu bo\'lim faqat Admin uchun mo\'ljallangan.', getUserKeyboard());
+    }
+    const webUrl = config.webAppUrl || 'https://talabayt-uz.vercel.app';
+    await ctx.reply(
+      `🌐 Web Admin Panelni ochish:`,
+      Markup.inlineKeyboard([
+        [Markup.button.webApp('🌐 Web Panelni ochish', webUrl)],
+        [Markup.button.url('🔗 Brauzerda ochish', webUrl)],
+      ])
+    );
   });
 
   // ➕ Talaba qo'shish (Barchaga ochiq)

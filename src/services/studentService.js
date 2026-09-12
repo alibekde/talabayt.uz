@@ -1,5 +1,6 @@
 const prisma = require('../config/database');
 const { normalizePhoneNumber, parseRoomNumber, studentCreateSchema } = require('../utils/validation');
+const notificationService = require('./notificationService');
 
 class StudentService {
   /**
@@ -161,6 +162,11 @@ class StudentService {
       },
     });
 
+    // Telegram adminlarga bildirishnoma yuborish
+    try {
+      notificationService.notifyNewStudent(newStudent, 'Web Panel');
+    } catch (err) {}
+
     return newStudent;
   }
 
@@ -229,10 +235,15 @@ class StudentService {
    * Talabani o'chirish
    */
   async deleteStudent(id) {
-    await this.getStudentById(id);
+    const student = await this.getStudentById(id);
     await prisma.student.delete({
       where: { id },
     });
+
+    try {
+      notificationService.notifyStudentDeleted(student, 'Web Panel');
+    } catch (err) {}
+
     return { success: true, message: 'Talaba tizimdan muvaffaqiyatli o\'chirildi.' };
   }
 
@@ -260,6 +271,10 @@ class StudentService {
         },
       }),
     ]);
+
+    try {
+      notificationService.notifyMovement(updatedStudent, newStatus, 'Web Panel');
+    } catch (err) {}
 
     return {
       success: true,

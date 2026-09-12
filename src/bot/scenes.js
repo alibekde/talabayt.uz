@@ -20,6 +20,7 @@ const getUserKeyboard = () => {
 
 const getAdminKeyboard = () => {
   return Markup.keyboard([
+    ['🌐 Web Admin Panel'],
     ['➕ Talaba qo‘shish', '👨🎓 Talabalar'],
     ['🏢 Xonalar', '🔍 Qidirish'],
     ['🚪 Kirish/Chiqish', '📊 Hisobot'],

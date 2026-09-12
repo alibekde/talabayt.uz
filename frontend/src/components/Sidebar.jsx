@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, History, FileBarChart, LogOut, Home, X, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, History, FileBarChart, LogOut, Home, X, Sun, Moon, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -99,6 +99,17 @@ export default function Sidebar({ isOpen, onClose }) {
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-300" />}
             </button>
           </div>
+          {/* Telegram Bot Link */}
+          <a
+            href="https://t.me/BotFather"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full gap-2 px-3 py-2 mb-2 text-xs font-semibold text-blue-400 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Telegram Bot</span>
+          </a>
+
           <button
             onClick={handleLogout}
             className="flex items-center justify-center w-full gap-2 px-3 py-2 text-sm font-medium text-rose-400 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 transition-colors"
