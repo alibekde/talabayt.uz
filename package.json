@@ -11,7 +11,7 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "node prisma/seed.js",
     "build:frontend": "npm --prefix frontend install && npm --prefix frontend run build",
-    "build": "npm run build:frontend && npm run prisma:generate",
+    "build": "npm run build:frontend && npm run prisma:generate && node -e \"const fs=require('fs'); if(fs.existsSync('frontend/dist')){ fs.cpSync('frontend/dist', 'dist', {recursive: true}); }\"",
     "postinstall": "prisma generate"
   },
   "keywords": ["telegram-bot", "admin-panel", "yotoqxona", "students", "prisma", "nodejs"],
