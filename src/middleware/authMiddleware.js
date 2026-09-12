@@ -34,7 +34,7 @@ async function authMiddleware(req, res, next) {
       // Database query failed or unavailable
     }
 
-    if (!admin && decoded.username === 'admin') {
+    if (!admin && decoded && decoded.username && decoded.username.toLowerCase() === 'admin') {
       admin = {
         id: decoded.id || 'default-admin-id',
         username: decoded.username || 'admin',
