@@ -168,6 +168,25 @@ export default function AttendancePage() {
     }
   };
 
+  const handleCloseAttendance = async () => {
+    if (!window.confirm('Hozirgi davomatni muddatidan oldin yopishni tasdiqlaysizmi?')) {
+      return;
+    }
+    try {
+      setStartLoading(true);
+      const res = await api.post('/attendance/close');
+      if (res.data.success) {
+        showToast('Davomat muvaffaqiyatli yopildi.', 'info');
+        fetchActiveAttendance();
+        fetchHistory();
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Davomatni yopishda xatolik yuz berdi.', 'error');
+    } finally {
+      setStartLoading(false);
+    }
+  };
+
   const handleCopyCode = (code) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
@@ -254,18 +273,25 @@ export default function AttendancePage() {
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
 
-          <button
-            onClick={handleStartAttendance}
-            disabled={startLoading || isActive}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-md transition-all ${
-              isActive
-                ? 'bg-gray-400 cursor-not-allowed opacity-75'
-                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-500/20 active:scale-95'
-            }`}
-          >
-            <Play className="w-4 h-4 fill-white" />
-            {startLoading ? 'Ochilmoqda...' : isActive ? '⏳ Davomat ketmoqda' : '➕ Yangi davomat ochish'}
-          </button>
+          {isActive ? (
+            <button
+              onClick={handleCloseAttendance}
+              disabled={startLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-600/20 transition-all active:scale-95"
+            >
+              <X className="w-4 h-4" />
+              ⏹ Davomatni yopish
+            </button>
+          ) : (
+            <button
+              onClick={handleStartAttendance}
+              disabled={startLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 transition-all active:scale-95"
+            >
+              <Play className="w-4 h-4 fill-white" />
+              {startLoading ? 'Ochilmoqda...' : '➕ Yangi davomat ochish'}
+            </button>
+          )}
         </div>
       </div>
 

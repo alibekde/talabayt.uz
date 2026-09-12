@@ -45,11 +45,29 @@ function initBot() {
         `Quyidagi bo'limlardan birini tanlang yoki [🌐 Web Admin Panel] tugmasi orqali to'g'ridan-to'g'ri boshqaruv panelini oching:`;
       await ctx.reply(adminText, getAdminKeyboard());
     } else {
-      const userText =
-        `🏠 YOTOQXONA TALABALARI\n\n` +
-        `Assalomu alaykum! Yotoqxona talabalarini ro‘yxatga olish tizimi.\n\n` +
-        `Davomatdan o'tish uchun [📋 Davomat] tugmasini, ro'yxatdan o'tish uchun [➕ Talaba qo‘shish] tugmasini bosing:`;
-      await ctx.reply(userText, getUserKeyboard());
+      // Check if student is already registered
+      const prisma = require('../config/database');
+      let existing = null;
+      try {
+        existing = await prisma.student.findUnique({
+          where: { telegramUserId: String(userId) },
+        });
+      } catch (e) {}
+
+      if (existing) {
+        const userText =
+          `🏠 YOTOQXONA TALABALARI\n\n` +
+          `Assalomu alaykum, ${existing.firstName}!\n\n` +
+          `Siz tizimda ro'yxatdan o'tgansiz.\n` +
+          `Davomat vaqtida [📋 Davomat] tugmasini bosing yoki ma'lumotlaringizni ko'rish uchun [👤 Mening ma'lumotlarim] tugmasidan foydalaning.`;
+        await ctx.reply(userText, getUserKeyboard());
+      } else {
+        const userText =
+          `🏠 YOTOQXONA TALABALARI\n\n` +
+          `Assalomu alaykum! Yotoqxona talabalarini ro‘yxatga olish tizimi.\n\n` +
+          `Ro'yxatdan o'tish uchun quyidagi [➕ Ro'yxatdan o'tish] tugmasini bosing:`;
+        await ctx.reply(userText, getUserKeyboard());
+      }
     }
   });
 
@@ -66,7 +84,7 @@ function initBot() {
       await ctx.reply(adminText, getAdminKeyboard());
     } else {
       await ctx.reply(
-        `❌ Sizda admin panelga kirish huquqi mavjud emas.\n\nSizning Telegram ID: <code>${userId}</code>`,
+        `⛔ Sizda administrator huquqi mavjud emas.\n\nSizning Telegram ID: <code>${userId}</code>`,
         { parse_mode: 'HTML', ...getUserKeyboard() }
       );
     }
@@ -76,7 +94,7 @@ function initBot() {
   bot.hears('🌐 Web Admin Panel', async (ctx) => {
     const userId = ctx.from?.id;
     if (!isAdmin(userId)) {
-      return ctx.reply('❌ Ushbu bo\'lim faqat Admin uchun mo\'ljallangan.', getUserKeyboard());
+      return ctx.reply('⛔ Sizda administrator huquqi mavjud emas.', getUserKeyboard());
     }
     const webUrl = config.webAppUrl || 'https://talabayt-uz.vercel.app';
     await ctx.reply(
@@ -96,7 +114,7 @@ function initBot() {
   bot.command('webapp', async (ctx) => {
     const userId = ctx.from?.id;
     if (!isAdmin(userId)) {
-      return ctx.reply('❌ Ushbu bo\'lim faqat Admin uchun mo\'ljallangan.', getUserKeyboard());
+      return ctx.reply('⛔ Sizda administrator huquqi mavjud emas.', getUserKeyboard());
     }
     const webUrl = config.webAppUrl || 'https://talabayt-uz.vercel.app';
     await ctx.reply(
@@ -108,6 +126,39 @@ function initBot() {
     );
   });
 
+  // 👤 Mening ma'lumotlarim
+  bot.hears('👤 Mening ma\'lumotlarim', async (ctx) => {
+    const userId = ctx.from?.id;
+    const prisma = require('../config/database');
+    try {
+      const student = await prisma.student.findUnique({
+        where: { telegramUserId: String(userId) },
+      });
+
+      if (!student) {
+        return ctx.reply(
+          `❌ Siz hali tizimda ro'yxatdan o'tmagansiz.\n\nRo'yxatdan o'tish uchun [➕ Ro'yxatdan o'tish] tugmasini bosing.`,
+          getUserKeyboard()
+        );
+      }
+
+      const infoText =
+        `📋 TALABA MA'LUMOTLARI\n\n` +
+        `👤 Ismi: ${student.firstName}\n` +
+        `👤 Familiyasi: ${student.lastName}\n` +
+        `👨 Otasining ismi: ${student.fatherName}\n` +
+        `🎓 Yo‘nalishi: ${student.direction}\n` +
+        `🏠 Xona: ${student.roomNumber}\n` +
+        `📱 Telefon: ${student.phone}\n` +
+        `🟢 Holati: ${student.status === 'INSIDE' ? 'Yotoqxonada' : 'Tashqarida'}`;
+
+      await ctx.reply(infoText, getMainKeyboardForUser(userId));
+    } catch (err) {
+      logger.error('Mening ma\'lumotlarim xatosi:', err.message);
+      await ctx.reply('❌ Ma\'lumotlarni olishda xatolik yuz berdi.', getMainKeyboardForUser(userId));
+    }
+  });
+
   // 📋 Davomat (Talaba va Admin uchun)
   bot.hears('📋 Davomat', (ctx) => {
     ctx.scene.enter('ATTENDANCE_WIZARD');
@@ -117,8 +168,8 @@ function initBot() {
     ctx.scene.enter('ATTENDANCE_WIZARD');
   });
 
-  // ➕ Talaba qo'shish (Barchaga ochiq)
-  bot.hears('➕ Talaba qo‘shish', (ctx) => {
+  // ➕ Ro'yxatdan o'tish / Talaba qo'shish (Barchaga ochiq)
+  bot.hears(['➕ Ro\'yxatdan o\'tish', '➕ Talaba qo‘shish'], (ctx) => {
     ctx.scene.enter('ADD_STUDENT_WIZARD');
   });
 
@@ -128,7 +179,7 @@ function initBot() {
       const userId = ctx.from?.id;
       if (!isAdmin(userId)) {
         return ctx.reply(
-          '❌ Ushbu bo\'lim faqat Admin uchun mo\'ljallangan.',
+          '⛔ Sizda administrator huquqi mavjud emas.',
           getUserKeyboard()
         );
       }

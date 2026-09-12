@@ -20,6 +20,24 @@ class AttendanceController {
   }
 
   /**
+   * POST /api/attendance/close yoki POST /api/attendance/:id/close
+   * Davomatni qo'lda yopish (Faqat Admin)
+   */
+  async closeAttendance(req, res, next) {
+    try {
+      const { id } = req.params;
+      const result = await attendanceService.closeAttendance(id);
+      res.status(200).json({
+        success: true,
+        message: 'Davomat muvaffaqiyatli yopildi.',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/attendance/active
    * Hozirgi faol davomat holatini olish
    */

@@ -16,17 +16,18 @@ function isAdmin(userId) {
 // User vs Admin keyboards
 const getUserKeyboard = () => {
   return Markup.keyboard([
+    ['➕ Ro\'yxatdan o\'tish', '👤 Mening ma\'lumotlarim'],
     ['📋 Davomat'],
-    ['➕ Talaba qo‘shish'],
   ]).resize();
 };
 
 const getAdminKeyboard = () => {
   return Markup.keyboard([
     ['🌐 Web Admin Panel'],
-    ['📋 Davomat', '➕ Talaba qo‘shish'],
+    ['➕ Ro\'yxatdan o\'tish', '👤 Mening ma\'lumotlarim'],
+    ['📋 Davomat', '📊 Hisobot'],
     ['🏢 Xonalar', '👨🎓 Talabalar'],
-    ['🚪 Kirish/Chiqish', '📊 Hisobot'],
+    ['🚪 Kirish/Chiqish', '🔍 Qidirish'],
   ]).resize();
 };
 
@@ -288,9 +289,12 @@ addStudentWizard.action('save_student', async (ctx) => {
 
     const saved = await studentService.createStudent(s);
     await ctx.editMessageText(
-      `✅ Talaba muvaffaqiyatli saqlandi!\n\n` +
-      `👤 ${saved.firstName} ${saved.lastName}\n` +
-      `🏠 Xona: ${saved.roomNumber}`
+      `✅ Ro'yxatdan o'tish muvaffaqiyatli yakunlandi!\n\n` +
+      `Sizning ma’lumotlaringiz tizimga saqlandi:\n` +
+      `👤 ${saved.lastName} ${saved.firstName} ${saved.fatherName}\n` +
+      `🎓 ${saved.direction}\n` +
+      `🏠 Xona: ${saved.roomNumber}\n` +
+      `📱 Telefon: ${saved.phone}`
     );
     await ctx.reply('Bosh menyu:', getMainKeyboardForUser(ctx.from?.id));
   } catch (error) {

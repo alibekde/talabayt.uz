@@ -12,6 +12,10 @@ router.get('/active', authMiddleware, attendanceController.getActiveAttendance);
 // Start a new 30s attendance session
 router.post('/start', authMiddleware, attendanceController.startAttendance);
 
+// Close active attendance manually
+router.post('/close', authMiddleware, attendanceController.closeAttendance);
+router.post('/:id/close', authMiddleware, attendanceController.closeAttendance);
+
 // Attendance history list
 router.get('/history', authMiddleware, attendanceController.getAttendanceHistory);
 

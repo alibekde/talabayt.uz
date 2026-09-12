@@ -102,7 +102,7 @@ class ReportService {
             .font(fontRegular)
             .fontSize(12)
             .fillColor('#64748b')
-            .text('Hozircha hisobot yaratish uchun talabalar ro\'yxatga olinmagan.', startX, currentY + 20, {
+            .text('📭 Hozircha talabalar mavjud emas.', startX, currentY + 20, {
               align: 'center',
               width: tableWidth,
             });
@@ -166,7 +166,7 @@ class ReportService {
             .fontSize(9.5)
             .fillColor('#ffffff')
             .text(
-              `[XONA ${room.roomNumber}] -- ${roomFloor}-qavat patogi  (Jami: ${room.studentsCount}/4 ta  |  Xonada: ${insideCount}  |  Tashqarida: ${outsideCount})`,
+              `[XONA ${room.roomNumber}] -- ${roomFloor}-qavat patogi  (Jami: ${room.studentsCount}/3 ta  |  Xonada: ${insideCount}  |  Tashqarida: ${outsideCount})`,
               startX + 8,
               currentY + 5,
               { width: tableWidth - 16 }

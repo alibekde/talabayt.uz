@@ -98,6 +98,35 @@ class AttendanceService {
   }
 
   /**
+   * Admin davomatni qo'lda muddatidan oldin yopishi
+   */
+  async closeAttendance(attendanceId = null) {
+    if (this.activeTimer) {
+      clearTimeout(this.activeTimer);
+      this.activeTimer = null;
+    }
+
+    const where = attendanceId ? { id: attendanceId } : { status: 'ACTIVE' };
+    await prisma.attendance.updateMany({
+      where,
+      data: { status: 'EXPIRED' },
+    });
+
+    const active = await prisma.attendance.findFirst({
+      where: attendanceId ? { id: attendanceId } : {},
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (active) {
+      const details = await this.getAttendanceById(active.id);
+      this.broadcast('attendance_expired', details);
+      return details;
+    }
+
+    return { success: true };
+  }
+
+  /**
    * Hozirgi faol davomat holati va tafsilotlarini olish
    */
   async getActiveAttendance() {
