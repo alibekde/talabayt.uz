@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, DoorOpen, DoorClosed, ArrowRight, X, Phone, GraduationCap, Plus, BedDouble, CheckCircle2 } from 'lucide-react';
+import { Building2, Users, DoorOpen, DoorClosed, ArrowRight, X, Phone, GraduationCap, Plus, Trash2, Bed, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../components/Toast';
 import StudentModal from '../components/StudentModal';
@@ -12,7 +12,12 @@ export default function RoomsPage() {
   const [loading, setLoading] = useState(true);
   const [modalLoading, setModalLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Modals state
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
+  const [newRoomNumber, setNewRoomNumber] = useState('');
+  const [createRoomLoading, setCreateRoomLoading] = useState(false);
 
   const { showToast } = useToast();
 
@@ -27,7 +32,7 @@ export default function RoomsPage() {
         params: { floor: floor || undefined },
       });
       if (res.data.success) {
-        setRooms(res.data.data.rooms);
+        setRooms(res.data.data.rooms || []);
       }
     } catch (err) {
       console.error('Xonalarni yuklashda xatolik:', err);
@@ -75,12 +80,54 @@ export default function RoomsPage() {
     }
   };
 
+  const handleCreateRoom = async (e) => {
+    e.preventDefault();
+    const rNum = parseInt(newRoomNumber, 10);
+    if (!rNum || isNaN(rNum) || rNum < 1) {
+      showToast('Iltimos, to\'g\'ri xona raqamini kiriting (masalan: 101, 204, 305).', 'error');
+      return;
+    }
+
+    try {
+      setCreateRoomLoading(true);
+      const res = await api.post('/students/rooms', { roomNumber: rNum });
+      if (res.data.success) {
+        showToast(`🏠 ${rNum}-xona muvaffaqiyatli yaratildi!`, 'success');
+        setIsCreateRoomModalOpen(false);
+        setNewRoomNumber('');
+        fetchRooms(floorFilter);
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Xona yaratishda xatolik yuz berdi.', 'error');
+    } finally {
+      setCreateRoomLoading(false);
+    }
+  };
+
+  const handleDeleteRoom = async (roomNumber) => {
+    if (!window.confirm(`${roomNumber}-xonani o'chirishni tasdiqlaysizmi?`)) {
+      return;
+    }
+
+    try {
+      const res = await api.delete(`/students/rooms/${roomNumber}`);
+      if (res.data.success) {
+        showToast(`🗑️ ${roomNumber}-xona muvaffaqiyatli o'chirildi.`, 'success');
+        setSelectedRoom(null);
+        setRoomDetails(null);
+        fetchRooms(floorFilter);
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Xonani o\'chirishda xatolik yuz berdi.', 'error');
+    }
+  };
+
   const handleAddStudentToRoom = async (formData) => {
     try {
       const res = await api.post('/students', formData);
       if (res.data.success) {
         showToast('Talaba ushbu xonaga muvaffaqiyatli biriktirildi!', 'success');
-        setIsAddModalOpen(false);
+        setIsAddStudentModalOpen(false);
         if (selectedRoom) {
           const detailRes = await api.get(`/students/rooms/${selectedRoom}`);
           if (detailRes.data.success) {
@@ -115,46 +162,73 @@ export default function RoomsPage() {
             Xonalar sig'imi, bo'sh joylar va har bir xonadagi talabalar nazorati
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-semibold px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40">
             Jami: {rooms.length} ta xona
           </span>
+          <button
+            onClick={() => setIsCreateRoomModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Yangi xona ochish
+          </button>
         </div>
       </div>
 
-      {/* Floor Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {floors.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setFloorFilter(f.value)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
-              floorFilter === f.value
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-800'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+      {/* Floor Filter Tabs (Only shown if rooms exist) */}
+      {rooms.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {floors.map((f) => (
+            <button
+              key={f.value}
+              onClick={() => setFloorFilter(f.value)}
+              className={`px-4 py-2 text-xs font-bold rounded-xl whitespace-nowrap transition-all ${
+                floorFilter === f.value
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-800'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Rooms Grid */}
+      {/* Rooms Grid or Empty State */}
       {loading ? (
-        <div className="py-16 text-center text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
+        <div className="py-16 text-center text-gray-400 dark:text-slate-500 bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800">
           Xonalar yuklanmoqda...
         </div>
       ) : rooms.length === 0 ? (
-        <div className="py-16 text-center bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm">
-          <div className="inline-flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-slate-500">
-            <Building2 className="w-6 h-6" />
+        <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm transition-colors space-y-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+            <Building2 className="w-8 h-8" />
           </div>
-          <p className="text-sm font-semibold text-gray-700 dark:text-slate-200">
-            Hozircha xonalar mavjud emas.
-          </p>
-          <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
-            Talabalar qo'shilgach, bu yerda avtomatik xona kartochkalari paydo bo'ladi.
-          </p>
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              Hozircha xonalar mavjud emas
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 max-w-md mx-auto mt-1">
+              Yangi talaba qo'shilganda xonalar avtomatik shakllanadi yoki quyidagi tugma orqali oldindan yangi xona ochishingiz mumkin.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              onClick={() => setIsCreateRoomModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Yangi xona ochish
+            </button>
+            <button
+              onClick={() => setIsAddStudentModalOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-sm font-semibold transition-colors"
+            >
+              <Users className="w-4 h-4" />
+              Talaba qo'shish
+            </button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -186,6 +260,33 @@ export default function RoomsPage() {
                         {hasFree ? `🟢 ${room.freeSlots} ta bo'sh joy` : '🔴 To\'lgan (4/4)'}
                       </span>
                     </div>
+                  </div>
+
+                  {/* 4-Bed Visual Grid */}
+                  <div className="grid grid-cols-4 gap-1.5 my-3 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                    {[0, 1, 2, 3].map((slotIdx) => {
+                      const st = room.students && room.students[slotIdx];
+                      const isOccupied = Boolean(st);
+
+                      return (
+                        <div
+                          key={slotIdx}
+                          title={isOccupied ? `${st.firstName} ${st.lastName}` : 'Bo\'sh o\'rin'}
+                          className={`flex flex-col items-center justify-center py-1.5 rounded-lg text-center transition-all ${
+                            isOccupied
+                              ? st.status === 'INSIDE'
+                                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
+                                : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                              : 'bg-white dark:bg-slate-800/80 text-gray-300 dark:text-slate-600 border border-dashed border-gray-200 dark:border-slate-700'
+                          }`}
+                        >
+                          <Bed className="w-3.5 h-3.5" />
+                          <span className="text-[9px] font-bold mt-0.5">
+                            {isOccupied ? `#${slotIdx + 1}` : 'Bo\'sh'}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Capacity Bar */}
@@ -232,6 +333,74 @@ export default function RoomsPage() {
         </div>
       )}
 
+      {/* Add New Room Modal */}
+      {isCreateRoomModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-2xl">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white">
+                    Yangi Xona Ochish
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">
+                    Xona raqami va sig'imini belgilang
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCreateRoomModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateRoom} className="space-y-4 pt-2">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-slate-300 mb-1.5">
+                  Xona raqami *
+                </label>
+                <input
+                  type="number"
+                  value={newRoomNumber}
+                  onChange={(e) => setNewRoomNumber(e.target.value)}
+                  placeholder="Masalan: 101, 204, 312..."
+                  required
+                  autoFocus
+                  className="w-full px-4 py-2.5 text-sm bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 rounded-xl focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                />
+                {newRoomNumber && (
+                  <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-medium">
+                    📌 Joylashuvi: {Math.floor(Number(newRoomNumber) / 100) || 1}-qavat | Standart sig'im: 4 ta o'rin
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateRoomModalOpen(false)}
+                  className="px-4 py-2.5 text-xs font-semibold text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  disabled={createRoomLoading || !newRoomNumber}
+                  className="px-5 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-xl transition-colors shadow-sm"
+                >
+                  {createRoomLoading ? 'Yaratilmoqda...' : '✅ Xonani yaratish'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Individual Room Modal (e.g. 420-XONA) */}
       {selectedRoom && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 overflow-y-auto">
@@ -249,15 +418,26 @@ export default function RoomsPage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  setSelectedRoom(null);
-                  setRoomDetails(null);
-                }}
-                className="p-1.5 text-white/70 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                {roomDetails && roomDetails.totalStudents === 0 && (
+                  <button
+                    onClick={() => handleDeleteRoom(selectedRoom)}
+                    title="Bo'sh xonani o'chirish"
+                    className="p-1.5 text-rose-300 hover:text-rose-100 rounded-xl hover:bg-rose-500/20 transition-colors"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedRoom(null);
+                    setRoomDetails(null);
+                  }}
+                  className="p-1.5 text-white/70 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Body */}
@@ -295,7 +475,7 @@ export default function RoomsPage() {
                     </h3>
                     {roomDetails && roomDetails.totalStudents < 4 && (
                       <button
-                        onClick={() => setIsAddModalOpen(true)}
+                        onClick={() => setIsAddStudentModalOpen(true)}
                         className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" /> Talaba biriktirish
@@ -305,8 +485,14 @@ export default function RoomsPage() {
 
                   {/* Student Cards in Room */}
                   {!roomDetails || roomDetails.students.length === 0 ? (
-                    <div className="py-8 text-center text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800">
-                      Ushbu xonada hozircha talabalar mavjud emas.
+                    <div className="py-8 text-center text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border border-gray-100 dark:border-slate-800 space-y-2">
+                      <p className="text-sm font-medium">Ushbu xonada hozircha talabalar mavjud emas.</p>
+                      <button
+                        onClick={() => setIsAddStudentModalOpen(true)}
+                        className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Birinchi talabani joylashtirish
+                      </button>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -383,13 +569,23 @@ export default function RoomsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 bg-slate-50 border-t border-gray-100 flex justify-end">
+            <div className="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/90 border-t border-gray-100 dark:border-slate-800 flex items-center justify-between">
+              {roomDetails && roomDetails.totalStudents === 0 ? (
+                <button
+                  onClick={() => handleDeleteRoom(selectedRoom)}
+                  className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Bo'sh xonani o'chirish
+                </button>
+              ) : (
+                <span className="text-xs text-gray-400">Xona bandligi: {roomDetails?.totalStudents || 0}/4</span>
+              )}
               <button
                 onClick={() => {
                   setSelectedRoom(null);
                   setRoomDetails(null);
                 }}
-                className="px-5 py-2 text-xs font-bold text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 transition-colors"
+                className="px-5 py-2 text-xs font-bold text-gray-700 dark:text-slate-200 bg-gray-200 dark:bg-slate-700 rounded-xl hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
               >
                 Yopish
               </button>
@@ -400,8 +596,8 @@ export default function RoomsPage() {
 
       {/* Direct Add Student to Room Modal */}
       <StudentModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        isOpen={isAddStudentModalOpen}
+        onClose={() => setIsAddStudentModalOpen(false)}
         onSave={handleAddStudentToRoom}
         student={selectedRoom ? { roomNumber: selectedRoom } : null}
       />

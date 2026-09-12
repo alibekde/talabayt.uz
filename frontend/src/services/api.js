@@ -12,6 +12,7 @@ const api = axios.create({
 const STORAGE_KEYS = {
   STUDENTS: 'yt_talabalar_data',
   LOGS: 'yt_harakatlar_data',
+  CUSTOM_ROOMS: 'yt_xonalar_data',
 };
 
 function getLocalStudents() {
@@ -43,6 +44,21 @@ function addLocalLog(log) {
     const logs = getLocalLogs();
     logs.unshift({ id: 'log-' + Date.now(), createdAt: new Date().toISOString(), ...log });
     localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs.slice(0, 100)));
+  } catch {}
+}
+
+function getLocalCustomRooms() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_ROOMS);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setLocalCustomRooms(data) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_ROOMS, JSON.stringify(data));
   } catch {}
 }
 
@@ -89,18 +105,46 @@ function handleMockFallback(config) {
     const insideStudents = students.filter((s) => s.status === 'INSIDE').length;
     const outsideStudents = totalStudents - insideStudents;
 
-    // Floor stats
-    const floorCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    students.forEach((s) => {
-      const fl = Math.floor(Number(s.roomNumber) / 100) || 1;
-      if (floorCounts[fl] !== undefined) floorCounts[fl]++;
+    const customRooms = getLocalCustomRooms();
+    const studentRooms = Array.from(new Set(students.map((s) => Number(s.roomNumber))));
+    const allRoomNumbers = Array.from(new Set([...customRooms, ...studentRooms])).sort((a, b) => a - b);
+    const totalRooms = allRoomNumbers.length;
+    const totalCapacity = totalRooms * 4;
+    const freeSlots = Math.max(0, totalCapacity - totalStudents);
+
+    const floorMap = new Map();
+    allRoomNumbers.forEach((rNum) => {
+      const fl = Math.floor(rNum / 100) || 1;
+      if (!floorMap.has(fl)) {
+        floorMap.set(fl, { floor: `${fl}-qavat`, students: 0, inside: 0, outside: 0 });
+      }
     });
 
-    const floorStats = Object.keys(floorCounts).map((fl) => ({
-      floor: `${fl}-qavat`,
-      talabalar: floorCounts[fl],
-      ichkarida: students.filter((s) => Math.floor(Number(s.roomNumber) / 100) === Number(fl) && s.status === 'INSIDE').length,
-      tashqarida: students.filter((s) => Math.floor(Number(s.roomNumber) / 100) === Number(fl) && s.status === 'OUTSIDE').length,
+    students.forEach((s) => {
+      const fl = Math.floor(Number(s.roomNumber) / 100) || 1;
+      if (!floorMap.has(fl)) {
+        floorMap.set(fl, { floor: `${fl}-qavat`, students: 0, inside: 0, outside: 0 });
+      }
+      const item = floorMap.get(fl);
+      item.students++;
+      if (s.status === 'INSIDE') item.inside++;
+      else item.outside++;
+    });
+
+    const floorStats = Array.from(floorMap.values());
+
+    const directionMap = {};
+    students.forEach((s) => {
+      if (s.direction) {
+        directionMap[s.direction] = (directionMap[s.direction] || 0) + 1;
+      }
+    });
+    const directionStats = Object.keys(directionMap).map((k) => ({ name: k, count: directionMap[k] }));
+
+    const roomStats = allRoomNumbers.map((rNum) => ({
+      roomNumber: rNum,
+      floor: Math.floor(rNum / 100) || 1,
+      count: students.filter((s) => Number(s.roomNumber) === rNum).length,
     }));
 
     return {
@@ -110,20 +154,17 @@ function handleMockFallback(config) {
           totalStudents,
           insideStudents,
           outsideStudents,
-          totalRooms: 40,
-          totalCapacity: 160,
-          freeSlots: Math.max(0, 160 - totalStudents),
-          occupancyRate: totalStudents > 0 ? Math.round((totalStudents / 160) * 100) : 0,
+          totalRooms,
+          totalCapacity,
+          freeSlots,
+          occupancyRate: totalCapacity > 0 ? Math.round((totalStudents / totalCapacity) * 100) : 0,
           floorStats,
-          directionStats: [
-            { name: 'Ichkarida', value: insideStudents },
+          directionStats,
+          movementStats: [
+            { name: 'Yotoqxonada', value: insideStudents },
             { name: 'Tashqarida', value: outsideStudents },
           ],
-          movementStats: [
-            { name: 'Kirganlar', count: insideStudents },
-            { name: 'Chiqganlar', count: outsideStudents },
-          ],
-          roomStats: [],
+          roomStats,
         },
       },
       status: 200,
@@ -155,38 +196,94 @@ function handleMockFallback(config) {
     };
   }
 
+  // Add Custom Room: POST /students/rooms
+  if (url === 'students/rooms' && method === 'post') {
+    const body = typeof config.data === 'string' ? JSON.parse(config.data) : config.data || {};
+    const rNum = Number(body.roomNumber);
+    if (!rNum || isNaN(rNum) || rNum < 1) {
+      return Promise.reject({
+        response: { status: 400, data: { success: false, message: 'Xona raqami noto\'g\'ri.' } },
+      });
+    }
+    const customRooms = getLocalCustomRooms();
+    if (!customRooms.includes(rNum)) {
+      customRooms.push(rNum);
+      customRooms.sort((a, b) => a - b);
+      setLocalCustomRooms(customRooms);
+    }
+    return {
+      data: {
+        success: true,
+        message: `${rNum}-xona muvaffaqiyatli yaratildi.`,
+        data: {
+          roomNumber: rNum,
+          floor: Math.floor(rNum / 100) || 1,
+          capacity: 4,
+          totalStudents: 0,
+          freeSlots: 4,
+          insideCount: 0,
+          outsideCount: 0,
+          isFull: false,
+          students: [],
+        },
+      },
+      status: 201,
+    };
+  }
+
+  // Delete Room: DELETE /students/rooms/:roomNumber
+  const deleteRoomMatch = url.match(/^students\/rooms\/(\d+)$/);
+  if (deleteRoomMatch && method === 'delete') {
+    const rNum = Number(deleteRoomMatch[1]);
+    const hasStudents = students.some((s) => Number(s.roomNumber) === rNum);
+    if (hasStudents) {
+      return Promise.reject({
+        response: {
+          status: 400,
+          data: { success: false, message: 'Xonada talabalar mavjud. Avval talabalarni boshqa xonaga ko\'chiring yoki o\'chiring.' },
+        },
+      });
+    }
+    const customRooms = getLocalCustomRooms().filter((r) => r !== rNum);
+    setLocalCustomRooms(customRooms);
+    return {
+      data: { success: true, message: `${rNum}-xona tizimdan o'chirildi.` },
+      status: 200,
+    };
+  }
+
   // Rooms Overview: GET /students/rooms
   if (url === 'students/rooms' && method === 'get') {
     const params = config.params || {};
     const floorFilter = params.floor ? Number(params.floor) : null;
+    const customRooms = getLocalCustomRooms();
+    const studentRooms = Array.from(new Set(students.map((s) => Number(s.roomNumber))));
+    const allRoomNumbers = Array.from(new Set([...customRooms, ...studentRooms])).sort((a, b) => a - b);
+
     const roomsMap = new Map();
 
-    const startFloor = floorFilter ? floorFilter : 1;
-    const endFloor = floorFilter ? floorFilter : 4;
-
-    for (let fl = startFloor; fl <= endFloor; fl++) {
-      for (let r = 1; r <= 10; r++) {
-        const roomNum = fl * 100 + r;
-        roomsMap.set(roomNum, {
-          roomNumber: roomNum,
-          floor: fl,
-          capacity: 4,
-          totalStudents: 0,
-          insideCount: 0,
-          outsideCount: 0,
-          freeSlots: 4,
-          isFull: false,
-          students: [],
-        });
-      }
-    }
+    allRoomNumbers.forEach((rNum) => {
+      const fl = Math.floor(rNum / 100) || 1;
+      roomsMap.set(rNum, {
+        roomNumber: rNum,
+        floor: fl,
+        capacity: 4,
+        totalStudents: 0,
+        insideCount: 0,
+        outsideCount: 0,
+        freeSlots: 4,
+        isFull: false,
+        students: [],
+      });
+    });
 
     students.forEach((st) => {
       const rNum = Number(st.roomNumber);
       if (!roomsMap.has(rNum)) {
+        const fl = Math.floor(rNum / 100) || 1;
         roomsMap.set(rNum, {
           roomNumber: rNum,
-          floor: Math.floor(rNum / 100) || 1,
+          floor: fl,
           capacity: 4,
           totalStudents: 0,
           insideCount: 0,
@@ -208,7 +305,11 @@ function handleMockFallback(config) {
       rm.students.push(st);
     });
 
-    const roomsList = Array.from(roomsMap.values());
+    let roomsList = Array.from(roomsMap.values());
+    if (floorFilter) {
+      roomsList = roomsList.filter((r) => r.floor === floorFilter);
+    }
+
     return {
       data: {
         success: true,
@@ -407,13 +508,29 @@ function handleMockFallback(config) {
 
   // Reports
   if (url === 'reports' && method === 'get') {
+    const customRooms = getLocalCustomRooms();
+    const studentRooms = Array.from(new Set(students.map((s) => Number(s.roomNumber))));
+    const allRoomNumbers = Array.from(new Set([...customRooms, ...studentRooms])).sort((a, b) => a - b);
+
+    const groupedRooms = [];
+    allRoomNumbers.forEach((rNum) => {
+      const roomStudents = students.filter((s) => Number(s.roomNumber) === rNum);
+      if (roomStudents.length > 0) {
+        groupedRooms.push({
+          roomNumber: rNum,
+          studentsCount: roomStudents.length,
+          students: roomStudents,
+        });
+      }
+    });
+
     return {
       data: {
         success: true,
         data: {
           totalStudents: students.length,
-          totalRooms: 40,
-          rooms: [],
+          totalRooms: groupedRooms.length,
+          rooms: groupedRooms,
         },
       },
       status: 200,
