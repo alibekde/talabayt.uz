@@ -20,9 +20,13 @@ export default function LoginPage() {
       await login(username, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(
-        err.response?.data?.message || 'Login yoki parol noto\'g\'ri.'
-      );
+      if (!err.response) {
+        setError('Backend serverga ulanib bo\'lmadi. Backend API manzili (VITE_API_URL) to\'g\'ri sozlanganligini tekshiring.');
+      } else {
+        setError(
+          err.response.data?.message || 'Login yoki parol noto\'g\'ri.'
+        );
+      }
     } finally {
       setLoading(false);
     }
