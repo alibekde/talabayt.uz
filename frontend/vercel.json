@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://api.sizning-domeningiz.uz/api/$1"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
