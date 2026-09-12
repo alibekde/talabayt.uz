@@ -32,6 +32,7 @@ function parseRoomNumber(input) {
 
 // Zod schemas
 const studentCreateSchema = z.object({
+  telegramUserId: z.string().optional().nullable(),
   firstName: z.string().trim().min(2, "Ism kamida 2 ta belgidan iborat bo'lishi kerak"),
   lastName: z.string().trim().min(2, "Familiya kamida 2 ta belgidan iborat bo'lishi kerak"),
   fatherName: z.string().trim().min(2, "Otasining ismi kamida 2 ta belgidan iborat bo'lishi kerak"),

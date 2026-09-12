@@ -176,7 +176,7 @@ export default function StudentModal({ isOpen, onClose, onSave, student = null, 
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-slate-400 mb-1">
-                Xona raqami * (Max 4 kishi)
+                Xona raqami * (Max 3 kishi)
               </label>
               <input
                 type="number"

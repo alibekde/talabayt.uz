@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Building2, History, FileBarChart, LogOut, Home, X, Sun, Moon, Send } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, ClipboardCheck, History, FileBarChart, LogOut, Home, X, Sun, Moon, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,6 +16,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/attendance', label: 'Davomat', icon: ClipboardCheck },
     { to: '/rooms', label: 'Xonalar (Patoklar)', icon: Building2 },
     { to: '/students', label: 'Talabalar', icon: Users },
     { to: '/logs', label: 'Kirish-Chiqish Tarixi', icon: History },

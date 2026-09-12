@@ -9,6 +9,7 @@ const {
   addStudentWizard,
   searchWizard,
   roomDetailWizard,
+  attendanceWizard,
   isAdmin,
   getUserKeyboard,
   getAdminKeyboard,
@@ -27,7 +28,7 @@ function initBot() {
   notificationService.setBotInstance(bot);
 
   // Session & Stage Setup
-  const stage = new Scenes.Stage([addStudentWizard, searchWizard, roomDetailWizard]);
+  const stage = new Scenes.Stage([addStudentWizard, searchWizard, roomDetailWizard, attendanceWizard]);
   bot.use(session());
   bot.use(stage.middleware());
 
@@ -47,7 +48,7 @@ function initBot() {
       const userText =
         `🏠 YOTOQXONA TALABALARI\n\n` +
         `Assalomu alaykum! Yotoqxona talabalarini ro‘yxatga olish tizimi.\n\n` +
-        `Ro'yxatdan o'tish uchun quyidagi [➕ Talaba qo‘shish] tugmasini bosing:`;
+        `Davomatdan o'tish uchun [📋 Davomat] tugmasini, ro'yxatdan o'tish uchun [➕ Talaba qo‘shish] tugmasini bosing:`;
       await ctx.reply(userText, getUserKeyboard());
     }
   });
@@ -80,7 +81,7 @@ function initBot() {
     const webUrl = config.webAppUrl || 'https://talabayt-uz.vercel.app';
     await ctx.reply(
       `🌐 <b>YOTOQXONA WEB ADMIN PANELI</b>\n\n` +
-      `Web panel orqali barcha talabalar, xonalar (patoklar), jonli statistika va eksport hisobotlarini to'liq boshqarishingiz mumkin.\n\n` +
+      `Web panel orqali barcha talabalar, xonalar (patoklar), davomat, jonli statistika va hisobotlarni to'liq boshqarishingiz mumkin.\n\n` +
       `🔗 <b>Manzil:</b> ${webUrl}`,
       {
         parse_mode: 'HTML',
@@ -105,6 +106,15 @@ function initBot() {
         [Markup.button.url('🔗 Brauzerda ochish', webUrl)],
       ])
     );
+  });
+
+  // 📋 Davomat (Talaba va Admin uchun)
+  bot.hears('📋 Davomat', (ctx) => {
+    ctx.scene.enter('ATTENDANCE_WIZARD');
+  });
+
+  bot.command('davomat', (ctx) => {
+    ctx.scene.enter('ATTENDANCE_WIZARD');
   });
 
   // ➕ Talaba qo'shish (Barchaga ochiq)

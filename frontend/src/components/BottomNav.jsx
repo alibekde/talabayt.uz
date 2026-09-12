@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Building2, Users, History, FileBarChart } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, Building2, Users, History, FileBarChart } from 'lucide-react';
 
 export default function BottomNav() {
   const navItems = [
     { to: '/dashboard', label: 'Bosh sahifa', icon: LayoutDashboard },
+    { to: '/attendance', label: 'Davomat', icon: ClipboardCheck },
     { to: '/rooms', label: 'Xonalar', icon: Building2 },
     { to: '/students', label: 'Talabalar', icon: Users },
-    { to: '/logs', label: 'Tarix', icon: History },
     { to: '/reports', label: 'Hisobot', icon: FileBarChart },
   ];
 

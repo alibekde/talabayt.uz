@@ -111,6 +111,19 @@ class StudentService {
       throw err;
     }
 
+    // Telegram user ID orqali bitta foydalanuvchi faqat 1 marta ro'yxatdan o'tishi tekshiruvi
+    if (validated.telegramUserId) {
+      const existingTg = await prisma.student.findUnique({
+        where: { telegramUserId: String(validated.telegramUserId) },
+      });
+      if (existingTg) {
+        const error = new Error('⚠️ Siz allaqachon ro‘yxatdan o‘tgansiz. Sizning ma’lumotlaringiz tizimda mavjud.');
+        error.statusCode = 409;
+        error.isCustom = true;
+        throw error;
+      }
+    }
+
     // Duplikat tekshirish: firstName + lastName + fatherName + phone
     const existing = await prisma.student.findFirst({
       where: {
@@ -128,13 +141,13 @@ class StudentService {
       throw error;
     }
 
-    // 1 ta xonada ko'pi bilan 4 ta talaba bo'lishi shart
+    // 1 ta xonada ko'pi bilan 3 ta talaba bo'lishi shart
     const currentRoomCount = await prisma.student.count({
       where: { roomNumber: parsedRoom },
     });
 
-    if (currentRoomCount >= 4) {
-      const error = new Error(`⚠️ ${parsedRoom}-xonada allaqachon 4 ta talaba mavjud. Xona to'lgan! Boshqa xona tanlang.`);
+    if (currentRoomCount >= 3) {
+      const error = new Error('❌ Bu xona to‘liq band. Xonada maksimal 3 ta talaba bo‘lishi mumkin.');
       error.statusCode = 400;
       error.isCustom = true;
       throw error;
@@ -142,6 +155,7 @@ class StudentService {
 
     const newStudent = await prisma.student.create({
       data: {
+        telegramUserId: validated.telegramUserId ? String(validated.telegramUserId) : null,
         firstName: validated.firstName.trim(),
         lastName: validated.lastName.trim(),
         fatherName: validated.fatherName.trim(),
@@ -181,6 +195,9 @@ class StudentService {
     if (rawData.lastName) updateData.lastName = rawData.lastName.trim();
     if (rawData.fatherName) updateData.fatherName = rawData.fatherName.trim();
     if (rawData.direction) updateData.direction = rawData.direction.trim();
+    if (rawData.telegramUserId !== undefined) {
+      updateData.telegramUserId = rawData.telegramUserId ? String(rawData.telegramUserId) : null;
+    }
 
     if (rawData.phone) {
       const normalizedPhone = normalizePhoneNumber(rawData.phone);
@@ -207,8 +224,8 @@ class StudentService {
         const targetRoomCount = await prisma.student.count({
           where: { roomNumber: parsedRoom },
         });
-        if (targetRoomCount >= 4) {
-          const err = new Error(`⚠️ ${parsedRoom}-xonada allaqachon 4 ta talaba mavjud. Xona to'lgan!`);
+        if (targetRoomCount >= 3) {
+          const err = new Error('❌ Bu xona to‘liq band. Xonada maksimal 3 ta talaba bo‘lishi mumkin.');
           err.statusCode = 400;
           err.isCustom = true;
           throw err;
@@ -344,7 +361,7 @@ class StudentService {
     });
 
     const roomsMap = new Map();
-    const STANDARD_CAPACITY = 4; // Har bir xona uchun 4 ta o'rin
+    const STANDARD_CAPACITY = 3; // Har bir xona uchun 3 ta o'rin
 
     for (const st of students) {
       if (!roomsMap.has(st.roomNumber)) {
@@ -420,7 +437,7 @@ class StudentService {
     });
 
     const floor = Math.floor(parsedRoom / 100) || 1;
-    const capacity = 4;
+    const capacity = 3;
     const insideCount = students.filter((s) => s.status === 'INSIDE').length;
     const outsideCount = students.filter((s) => s.status === 'OUTSIDE').length;
 
@@ -462,7 +479,7 @@ class StudentService {
     ]);
 
     const totalRooms = roomGroups.length;
-    const totalCapacity = totalRooms * 4;
+    const totalCapacity = totalRooms * 3;
     const freeSlots = Math.max(0, totalCapacity - totalStudents);
 
     // Qavatlar bo'yicha guruhlash (1-qavat, 2-qavat, 3-qavat, 4-qavat, 5-qavat)

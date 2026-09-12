@@ -257,14 +257,14 @@ export default function RoomsPage() {
                             : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800/50'
                         }`}
                       >
-                        {hasFree ? `🟢 ${room.freeSlots} ta bo'sh joy` : '🔴 To\'lgan (4/4)'}
+                        {hasFree ? `🟢 ${room.freeSlots} ta bo'sh joy` : '🔴 To\'lgan (3/3)'}
                       </span>
                     </div>
                   </div>
 
-                  {/* 4-Bed Visual Grid */}
-                  <div className="grid grid-cols-4 gap-1.5 my-3 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
-                    {[0, 1, 2, 3].map((slotIdx) => {
+                  {/* 3-Bed Visual Grid */}
+                  <div className="grid grid-cols-3 gap-1.5 my-3 p-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+                    {[0, 1, 2].map((slotIdx) => {
                       const st = room.students && room.students[slotIdx];
                       const isOccupied = Boolean(st);
 
@@ -292,15 +292,15 @@ export default function RoomsPage() {
                   {/* Capacity Bar */}
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-xs text-gray-500 dark:text-slate-400 mb-1">
-                      <span>Bandlik: {room.totalStudents}/4</span>
-                      <span>{Math.round((room.totalStudents / 4) * 100)}%</span>
+                      <span>Bandlik: {room.totalStudents}/3</span>
+                      <span>{Math.round((room.totalStudents / 3) * 100)}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${
-                          room.totalStudents >= 4 ? 'bg-rose-500' : 'bg-blue-600'
+                          room.totalStudents >= 3 ? 'bg-rose-500' : 'bg-blue-600'
                         }`}
-                        style={{ width: `${Math.min(100, (room.totalStudents / 4) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (room.totalStudents / 3) * 100)}%` }}
                       />
                     </div>
                   </div>
@@ -375,7 +375,7 @@ export default function RoomsPage() {
                 />
                 {newRoomNumber && (
                   <p className="text-[11px] text-blue-600 dark:text-blue-400 mt-1 font-medium">
-                    📌 Joylashuvi: {Math.floor(Number(newRoomNumber) / 100) || 1}-qavat | Standart sig'im: 4 ta o'rin
+                    📌 Joylashuvi: {Math.floor(Number(newRoomNumber) / 100) || 1}-qavat | Standart sig'im: 3 ta o'rin
                   </p>
                 )}
               </div>
@@ -414,7 +414,7 @@ export default function RoomsPage() {
                 <div>
                   <h2 className="text-base sm:text-lg font-bold">🏠 {selectedRoom}-XONA TAFSILOTLARI</h2>
                   <p className="text-xs text-blue-200">
-                    {roomDetails?.floor}-qavat patogi | {roomDetails?.totalStudents || 0}/4 kishi
+                    {roomDetails?.floor}-qavat patogi | {roomDetails?.totalStudents || 0}/3 kishi
                   </p>
                 </div>
               </div>
@@ -451,7 +451,7 @@ export default function RoomsPage() {
                     <div>
                       <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">Jami talabalar</p>
                       <p className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
-                        {roomDetails?.totalStudents || 0} / 4
+                        {roomDetails?.totalStudents || 0} / 3
                       </p>
                     </div>
                     <div>
@@ -473,7 +473,7 @@ export default function RoomsPage() {
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
                       Yashayotgan talabalar
                     </h3>
-                    {roomDetails && roomDetails.totalStudents < 4 && (
+                    {roomDetails && roomDetails.totalStudents < 3 && (
                       <button
                         onClick={() => setIsAddStudentModalOpen(true)}
                         className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
@@ -578,7 +578,7 @@ export default function RoomsPage() {
                   <Trash2 className="w-3.5 h-3.5" /> Bo'sh xonani o'chirish
                 </button>
               ) : (
-                <span className="text-xs text-gray-400">Xona bandligi: {roomDetails?.totalStudents || 0}/4</span>
+                <span className="text-xs text-gray-400">Xona bandligi: {roomDetails?.totalStudents || 0}/3</span>
               )}
               <button
                 onClick={() => {

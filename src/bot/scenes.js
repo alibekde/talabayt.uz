@@ -1,6 +1,8 @@
 const { Scenes, Markup } = require('telegraf');
 const { WizardScene } = Scenes;
+const prisma = require('../config/database');
 const studentService = require('../services/studentService');
+const attendanceService = require('../services/attendanceService');
 const { normalizePhoneNumber, parseRoomNumber } = require('../utils/validation');
 const logger = require('../utils/logger');
 const config = require('../config');
@@ -14,6 +16,7 @@ function isAdmin(userId) {
 // User vs Admin keyboards
 const getUserKeyboard = () => {
   return Markup.keyboard([
+    ['📋 Davomat'],
     ['➕ Talaba qo‘shish'],
   ]).resize();
 };
@@ -21,8 +24,8 @@ const getUserKeyboard = () => {
 const getAdminKeyboard = () => {
   return Markup.keyboard([
     ['🌐 Web Admin Panel'],
-    ['➕ Talaba qo‘shish', '👨🎓 Talabalar'],
-    ['🏢 Xonalar', '🔍 Qidirish'],
+    ['📋 Davomat', '➕ Talaba qo‘shish'],
+    ['🏢 Xonalar', '👨🎓 Talabalar'],
     ['🚪 Kirish/Chiqish', '📊 Hisobot'],
   ]).resize();
 };
@@ -58,9 +61,37 @@ const getConfirmKeyboard = () => {
 const addStudentWizard = new WizardScene(
   'ADD_STUDENT_WIZARD',
 
-  // 1/6: Ism
+  // 1/6: Ism & Takroriy ro'yxatdan o'tish tekshiruvi
   async (ctx) => {
-    ctx.wizard.state.student = {};
+    const userId = ctx.from?.id;
+
+    // Telegram foydalanuvchisi allaqachon ro'yxatdan o'tganligini tekshirish
+    if (userId && !isAdmin(userId)) {
+      try {
+        const existing = await prisma.student.findUnique({
+          where: { telegramUserId: String(userId) },
+        });
+
+        if (existing) {
+          await ctx.reply(
+            `⚠️ Siz allaqachon ro‘yxatdan o‘tgansiz.\nSizning ma’lumotlaringiz tizimda mavjud.\n\n` +
+            `👤 Ismi: ${existing.lastName} ${existing.firstName} ${existing.fatherName}\n` +
+            `🎓 Yo‘nalishi: ${existing.direction}\n` +
+            `🏠 Xona: ${existing.roomNumber}\n` +
+            `📱 Telefon: ${existing.phone}`,
+            getMainKeyboardForUser(userId)
+          );
+          return ctx.scene.leave();
+        }
+      } catch (err) {
+        logger.error('Check existing tg user error:', err.message);
+      }
+    }
+
+    ctx.wizard.state.student = {
+      telegramUserId: userId ? String(userId) : null,
+    };
+
     await ctx.reply(
       '1/6\n👤 Ismini kiriting:',
       Markup.keyboard([['❌ Bekor qilish']]).resize()
@@ -202,12 +233,12 @@ const addStudentWizard = new WizardScene(
       return;
     }
 
-    // Xona sig'imini tekshirish (ko'pi bilan 4 ta talaba)
+    // Xona sig'imini tekshirish (ko'pi bilan 3 ta talaba)
     try {
       const roomInfo = await studentService.getRoomDetails(parsedRoom);
-      if (roomInfo.totalStudents >= 4) {
+      if (roomInfo.totalStudents >= 3) {
         await ctx.reply(
-          `⚠️ ${parsedRoom}-xonada allaqachon 4 ta talaba mavjud (Xona to'lgan).\n\nIltimos, boshqa xona raqamini kiriting:`,
+          `❌ Bu xona to‘liq band. Xonada maksimal 3 ta talaba bo‘lishi mumkin.\n\nIltimos, boshqa bo'sh xona raqamini kiriting:`,
           getStepKeyboard()
         );
         return;
@@ -251,6 +282,10 @@ addStudentWizard.action('save_student', async (ctx) => {
       return ctx.scene.leave();
     }
 
+    if (!s.telegramUserId && ctx.from?.id) {
+      s.telegramUserId = String(ctx.from.id);
+    }
+
     const saved = await studentService.createStudent(s);
     await ctx.editMessageText(
       `✅ Talaba muvaffaqiyatli saqlandi!\n\n` +
@@ -260,8 +295,8 @@ addStudentWizard.action('save_student', async (ctx) => {
     await ctx.reply('Bosh menyu:', getMainKeyboardForUser(ctx.from?.id));
   } catch (error) {
     logger.error('Bot save_student xatosi:', error.message);
-    if (error.statusCode === 409 || error.message.includes('allaqachon mavjud')) {
-      await ctx.reply('⚠️ Ushbu talaba tizimda allaqachon mavjud.', getMainKeyboardForUser(ctx.from?.id));
+    if (error.statusCode === 409 || error.message.includes('allaqachon mavjud') || error.message.includes('allaqachon ro‘yxatdan o‘tgansiz')) {
+      await ctx.reply(`⚠️ ${error.message}`, getMainKeyboardForUser(ctx.from?.id));
     } else {
       await ctx.reply(`❌ Xatolik: ${error.message || 'Saqlashda xatolik yuz berdi.'}`, getMainKeyboardForUser(ctx.from?.id));
     }
@@ -281,6 +316,77 @@ addStudentWizard.action('cancel_student', async (ctx) => {
   await ctx.reply('Bosh menyu:', getMainKeyboardForUser(ctx.from?.id));
   return ctx.scene.leave();
 });
+
+// Davomat Scene (Talaba kod kiritib davomatdan o'tishi)
+const attendanceWizard = new WizardScene(
+  'ATTENDANCE_WIZARD',
+  async (ctx) => {
+    const userId = ctx.from?.id;
+
+    // 1. Foydalanuvchi ro'yxatdan o'tganmi?
+    if (!userId) {
+      await ctx.reply('❌ Telegram foydalanuvchi ma\'lumoti topilmadi.', getUserKeyboard());
+      return ctx.scene.leave();
+    }
+
+    const student = await prisma.student.findUnique({
+      where: { telegramUserId: String(userId) },
+    });
+
+    if (!student) {
+      await ctx.reply(
+        `❌ Siz tizimda ro‘yxatdan o‘tmagansiz.\nAvval ro‘yxatdan o‘tishingiz kerak.`,
+        getUserKeyboard()
+      );
+      return ctx.scene.leave();
+    }
+
+    // 2. Faol davomat mavjudmi?
+    const active = await prisma.attendance.findFirst({
+      where: { status: 'ACTIVE' },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!active) {
+      await ctx.reply('⏰ Hozirda faol davomat mavjud emas.', getMainKeyboardForUser(userId));
+      return ctx.scene.leave();
+    }
+
+    const remainingSeconds = Math.max(0, Math.ceil((new Date(active.expiresAt).getTime() - Date.now()) / 1000));
+    if (remainingSeconds <= 0) {
+      await ctx.reply('⏰ Davomat vaqti tugagan.', getMainKeyboardForUser(userId));
+      return ctx.scene.leave();
+    }
+
+    // 3. Kod so'rash
+    await ctx.reply(
+      `📋 Davomat\n\n🔐 Davomat kodini kiriting:\n⏱ Qolgan vaqt: ${remainingSeconds} soniya`,
+      Markup.keyboard([['❌ Bekor qilish']]).resize()
+    );
+    return ctx.wizard.next();
+  },
+
+  async (ctx) => {
+    const text = ctx.message?.text?.trim();
+    const userId = ctx.from?.id;
+
+    if (!text || text === '❌ Bekor qilish') {
+      await ctx.reply('Davomat bekor qilindi.', getMainKeyboardForUser(userId));
+      return ctx.scene.leave();
+    }
+
+    // Kodni tekshirish va qayd etish
+    try {
+      const result = await attendanceService.markAttendance(userId, text);
+      await ctx.reply(result.message, getMainKeyboardForUser(userId));
+    } catch (err) {
+      logger.error('Bot mark attendance error:', err.message);
+      await ctx.reply('❌ Davomatni tekshirishda xatolik yuz berdi.', getMainKeyboardForUser(userId));
+    }
+
+    return ctx.scene.leave();
+  }
+);
 
 // Qidirish Scene (Faqat Admin uchun)
 const searchWizard = new WizardScene(
@@ -388,6 +494,7 @@ module.exports = {
   addStudentWizard,
   searchWizard,
   roomDetailWizard,
+  attendanceWizard,
   isAdmin,
   getUserKeyboard,
   getAdminKeyboard,

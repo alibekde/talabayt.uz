@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import RoomsPage from './pages/RoomsPage';
 import StudentsPage from './pages/StudentsPage';
+import AttendancePage from './pages/AttendancePage';
 import LogsPage from './pages/LogsPage';
 import ReportsPage from './pages/ReportsPage';
 
@@ -66,6 +67,7 @@ function ProtectedLayout() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/rooms" element={<RoomsPage />} />
             <Route path="/students" element={<StudentsPage />} />
+            <Route path="/attendance" element={<AttendancePage />} />
             <Route path="/logs" element={<LogsPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
