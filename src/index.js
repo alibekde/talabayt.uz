@@ -88,21 +88,26 @@ app.get('*', (req, res, next) => {
 // Centralized Error Handler
 app.use(errorHandler);
 
-// Start Server
-const server = app.listen(config.port, () => {
-  logger.info(`Server ishga tushdi: http://localhost:${config.port} [${config.nodeEnv}]`);
-});
+// Start Server (only when not running inside Vercel serverless)
+let server = null;
+if (!process.env.VERCEL) {
+  server = app.listen(config.port, () => {
+    logger.info(`Server ishga tushdi: http://localhost:${config.port} [${config.nodeEnv}]`);
+  });
+}
 
 // Graceful Shutdown
 const handleGracefulShutdown = (signal) => {
   logger.info(`${signal} signali qabul qilindi. Server to'xtatilmoqda...`);
-  if (bot) {
+  if (bot && !process.env.VERCEL) {
     bot.stop(signal);
   }
-  server.close(() => {
-    logger.info('Server to\'liq to\'xtatildi.');
-    process.exit(0);
-  });
+  if (server) {
+    server.close(() => {
+      logger.info('Server to\'liq to\'xtatildi.');
+      process.exit(0);
+    });
+  }
 };
 
 process.once('SIGINT', () => handleGracefulShutdown('SIGINT'));
