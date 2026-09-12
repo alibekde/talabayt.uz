@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model Student {
+  id             String        @id @default(uuid())
+  firstName      String        @map("first_name")
+  lastName       String        @map("last_name")
+  fatherName     String        @map("father_name")
+  direction      String
+  phone          String
+  roomNumber     Int           @map("room_number")
+  status         String        @default("INSIDE") // "INSIDE" (Yotoqxonada) yoki "OUTSIDE" (Tashqarida / Chiqib ketgan)
+  lastMovementAt DateTime      @default(now()) @map("last_movement_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  movementLogs   MovementLog[]
+
+  @@index([roomNumber])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([phone])
+  @@index([status])
+  @@map("students")
+}
+
+model MovementLog {
+  id        String   @id @default(uuid())
+  studentId String   @map("student_id")
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type      String   // "CHECK_IN" (Kirib ketdi) yoki "CHECK_OUT" (Chiqib ketdi)
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([studentId])
+  @@index([createdAt])
+  @@map("movement_logs")
+}

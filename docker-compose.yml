@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: yotoqxona_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword123
+      POSTGRES_DB: yotoqxona_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: yotoqxona_app
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://postgres:mysecretpassword123@postgres:5432/yotoqxona_db?schema=public"
+      JWT_SECRET: "my-super-secret-jwt-key-2026"
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASSWORD: "admin123"
+      BOT_TOKEN: "8915266738:AAFWHSOnYwmFHwsjCaMs689bMSMN7k-4GkM"
+      ADMIN_IDS: "6556683612"
+
+volumes:
+  pgdata:
