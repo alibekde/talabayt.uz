@@ -92,15 +92,15 @@ function handleMockFallback(config) {
     // Floor stats
     const floorCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
     students.forEach((s) => {
-      const fl = Math.floor(s.roomNumber / 100) || 1;
+      const fl = Math.floor(Number(s.roomNumber) / 100) || 1;
       if (floorCounts[fl] !== undefined) floorCounts[fl]++;
     });
 
     const floorStats = Object.keys(floorCounts).map((fl) => ({
       floor: `${fl}-qavat`,
       talabalar: floorCounts[fl],
-      ichkarida: students.filter((s) => Math.floor(s.roomNumber / 100) === Number(fl) && s.status === 'INSIDE').length,
-      tashqarida: students.filter((s) => Math.floor(s.roomNumber / 100) === Number(fl) && s.status === 'OUTSIDE').length,
+      ichkarida: students.filter((s) => Math.floor(Number(s.roomNumber) / 100) === Number(fl) && s.status === 'INSIDE').length,
+      tashqarida: students.filter((s) => Math.floor(Number(s.roomNumber) / 100) === Number(fl) && s.status === 'OUTSIDE').length,
     }));
 
     return {
@@ -130,43 +130,117 @@ function handleMockFallback(config) {
     };
   }
 
-  // Rooms Overview
-  if (url === 'students/rooms/overview' && method === 'get') {
-    const floors = [1, 2, 3, 4];
-    const data = floors.map((fl) => {
-      const rooms = [];
-      for (let r = 1; r <= 10; r++) {
-        const roomNum = fl * 100 + (r < 10 ? `0${r}` : `${r}`);
-        const roomStudents = students.filter((s) => String(s.roomNumber) === String(roomNum) || Number(s.roomNumber) === Number(roomNum));
-        rooms.push({
-          roomNumber: Number(roomNum),
-          occupiedCount: roomStudents.length,
-          maxCapacity: 4,
-          isFull: roomStudents.length >= 4,
-          students: roomStudents,
-        });
-      }
-      return { floor: fl, rooms };
-    });
+  // Movement Logs: GET /students/logs
+  if (url.startsWith('students/logs') && method === 'get') {
+    const formattedLogs = logs.map((l) => ({
+      id: l.id || 'log-' + Math.random(),
+      type: l.type || (l.direction === 'INSIDE' ? 'CHECK_IN' : 'CHECK_OUT'),
+      note: l.note || (l.direction === 'INSIDE' ? 'Xonaga kirdi' : 'Xonadan chiqdi'),
+      createdAt: l.createdAt || new Date().toISOString(),
+      student: l.student || {
+        firstName: l.firstName || 'Talaba',
+        lastName: l.lastName || '',
+        phone: l.phone || '',
+        roomNumber: l.roomNumber || 101,
+      },
+    }));
 
-    return { data: { success: true, data }, status: 200 };
+    return {
+      data: {
+        success: true,
+        data: formattedLogs,
+        pagination: { total: formattedLogs.length, page: 1, limit: 30, totalPages: 1 },
+      },
+      status: 200,
+    };
   }
 
-  // Room Detail
+  // Rooms Overview: GET /students/rooms
+  if (url === 'students/rooms' && method === 'get') {
+    const params = config.params || {};
+    const floorFilter = params.floor ? Number(params.floor) : null;
+    const roomsMap = new Map();
+
+    const startFloor = floorFilter ? floorFilter : 1;
+    const endFloor = floorFilter ? floorFilter : 4;
+
+    for (let fl = startFloor; fl <= endFloor; fl++) {
+      for (let r = 1; r <= 10; r++) {
+        const roomNum = fl * 100 + r;
+        roomsMap.set(roomNum, {
+          roomNumber: roomNum,
+          floor: fl,
+          capacity: 4,
+          totalStudents: 0,
+          insideCount: 0,
+          outsideCount: 0,
+          freeSlots: 4,
+          isFull: false,
+          students: [],
+        });
+      }
+    }
+
+    students.forEach((st) => {
+      const rNum = Number(st.roomNumber);
+      if (!roomsMap.has(rNum)) {
+        roomsMap.set(rNum, {
+          roomNumber: rNum,
+          floor: Math.floor(rNum / 100) || 1,
+          capacity: 4,
+          totalStudents: 0,
+          insideCount: 0,
+          outsideCount: 0,
+          freeSlots: 4,
+          isFull: false,
+          students: [],
+        });
+      }
+      const rm = roomsMap.get(rNum);
+      rm.totalStudents++;
+      rm.freeSlots = Math.max(0, 4 - rm.totalStudents);
+      rm.isFull = rm.totalStudents >= 4;
+      if (st.status === 'INSIDE') {
+        rm.insideCount++;
+      } else {
+        rm.outsideCount++;
+      }
+      rm.students.push(st);
+    });
+
+    const roomsList = Array.from(roomsMap.values());
+    return {
+      data: {
+        success: true,
+        data: {
+          totalRooms: roomsList.length,
+          rooms: roomsList,
+        },
+      },
+      status: 200,
+    };
+  }
+
+  // Room Detail: GET /students/rooms/:roomNumber
   const roomMatch = url.match(/^students\/rooms\/(\d+)/);
   if (roomMatch && method === 'get') {
     const rNum = Number(roomMatch[1]);
     const roomStudents = students.filter((s) => Number(s.roomNumber) === rNum);
+    const insideCount = roomStudents.filter((s) => s.status === 'INSIDE').length;
+    const outsideCount = roomStudents.length - insideCount;
+
     return {
       data: {
         success: true,
         data: {
           roomNumber: rNum,
-          floor: Math.floor(rNum / 100),
-          maxCapacity: 4,
-          occupiedCount: roomStudents.length,
+          floor: Math.floor(rNum / 100) || 1,
+          capacity: 4,
+          totalStudents: roomStudents.length,
           freeSlots: Math.max(0, 4 - roomStudents.length),
           isFull: roomStudents.length >= 4,
+          insideCount,
+          outsideCount,
           students: roomStudents,
         },
       },
@@ -174,38 +248,37 @@ function handleMockFallback(config) {
     };
   }
 
-  // Movement Logs
-  if (url.startsWith('students/logs') && method === 'get') {
-    return {
-      data: { success: true, data: { logs, total: logs.length, page: 1, limit: 20, totalPages: 1 } },
-      status: 200,
-    };
-  }
-
-  // Toggle Status
-  const toggleMatch = url.match(/^students\/([^/]+)\/toggle-status/);
-  if (toggleMatch && method === 'post') {
-    const stId = toggleMatch[1];
+  // Toggle Movement: POST /students/:id/movement
+  const movementMatch = url.match(/^students\/([^/]+)\/movement/);
+  if (movementMatch && method === 'post') {
+    const stId = movementMatch[1];
     const stIndex = students.findIndex((s) => String(s.id) === String(stId));
     if (stIndex !== -1) {
       const st = students[stIndex];
       const newStatus = st.status === 'INSIDE' ? 'OUTSIDE' : 'INSIDE';
+      const movementType = newStatus === 'INSIDE' ? 'CHECK_IN' : 'CHECK_OUT';
       students[stIndex].status = newStatus;
       students[stIndex].lastMovementAt = new Date().toISOString();
       setLocalStudents(students);
 
       addLocalLog({
-        studentId: st.id,
-        direction: newStatus,
-        source: 'MANUAL',
-        student: { fullName: st.fullName, roomNumber: st.roomNumber },
+        type: movementType,
+        note: newStatus === 'INSIDE' ? 'Xonaga kirdi' : 'Xonadan chiqdi',
+        createdAt: new Date().toISOString(),
+        student: {
+          id: st.id,
+          firstName: st.firstName || '',
+          lastName: st.lastName || '',
+          phone: st.phone || '',
+          roomNumber: st.roomNumber || 101,
+        },
       });
 
       return {
         data: {
           success: true,
-          message: `Talaba holati "${newStatus === 'INSIDE' ? 'Ichkarida' : 'Tashqarida'}" ga o'zgartirildi.`,
-          data: students[stIndex],
+          student: students[stIndex],
+          message: newStatus === 'INSIDE' ? 'Talaba yotoqxonaga kirdi deb belgilandi.' : 'Talaba yotoqxonadan chiqdi deb belgilandi.',
         },
         status: 200,
       };
@@ -225,7 +298,7 @@ function handleMockFallback(config) {
       return Promise.reject({ response: { status: 404, data: { success: false, message: 'Talaba topilmadi.' } } });
     }
 
-    if (method === 'put') {
+    if (method === 'put' || method === 'patch') {
       const body = typeof config.data === 'string' ? JSON.parse(config.data) : config.data || {};
       if (stIndex !== -1) {
         students[stIndex] = { ...students[stIndex], ...body, updatedAt: new Date().toISOString() };
@@ -243,8 +316,8 @@ function handleMockFallback(config) {
     }
   }
 
-  // List Students (GET)
-  if (url.startsWith('students') && method === 'get') {
+  // List Students: GET /students
+  if (url === 'students' || (url.startsWith('students?') && method === 'get')) {
     const params = config.params || {};
     let filtered = [...students];
 
@@ -252,17 +325,16 @@ function handleMockFallback(config) {
       const s = String(params.search).toLowerCase();
       filtered = filtered.filter(
         (st) =>
-          st.fullName.toLowerCase().includes(s) ||
-          st.phone.includes(s) ||
+          (st.firstName && st.firstName.toLowerCase().includes(s)) ||
+          (st.lastName && st.lastName.toLowerCase().includes(s)) ||
+          (st.fatherName && st.fatherName.toLowerCase().includes(s)) ||
+          (st.phone && st.phone.includes(s)) ||
           String(st.roomNumber).includes(s) ||
-          st.faculty.toLowerCase().includes(s)
+          (st.direction && st.direction.toLowerCase().includes(s))
       );
     }
-    if (params.room) {
-      filtered = filtered.filter((st) => Number(st.roomNumber) === Number(params.room));
-    }
-    if (params.faculty) {
-      filtered = filtered.filter((st) => st.faculty === params.faculty);
+    if (params.roomNumber) {
+      filtered = filtered.filter((st) => Number(st.roomNumber) === Number(params.roomNumber));
     }
     if (params.status) {
       filtered = filtered.filter((st) => st.status === params.status);
@@ -271,36 +343,40 @@ function handleMockFallback(config) {
     return {
       data: {
         success: true,
-        data: {
-          students: filtered,
+        data: filtered,
+        pagination: {
           total: filtered.length,
           page: Number(params.page || 1),
-          limit: Number(params.limit || 10),
-          totalPages: Math.max(1, Math.ceil(filtered.length / Number(params.limit || 10))),
+          limit: Number(params.limit || 20),
+          totalPages: Math.max(1, Math.ceil(filtered.length / Number(params.limit || 20))),
         },
       },
       status: 200,
     };
   }
 
-  // Create Student (POST)
+  // Create Student: POST /students
   if (url === 'students' && method === 'post') {
     const body = typeof config.data === 'string' ? JSON.parse(config.data) : config.data || {};
     const roomStudents = students.filter((s) => Number(s.roomNumber) === Number(body.roomNumber));
     if (roomStudents.length >= 4) {
       return Promise.reject({
-        response: { status: 400, data: { success: false, message: `${body.roomNumber}-xonada bo'sh joy qolmagan (Maksimal 4 kishi).` } },
+        response: {
+          status: 400,
+          data: { success: false, message: `⚠️ ${body.roomNumber}-xonada allaqachon 4 ta talaba mavjud. Xona to'lgan!` },
+        },
       });
     }
 
     const newStudent = {
       id: 'st-' + Date.now(),
-      fullName: body.fullName,
-      phone: body.phone,
-      roomNumber: Number(body.roomNumber),
-      faculty: body.faculty,
+      firstName: body.firstName || '',
+      lastName: body.lastName || '',
+      fatherName: body.fatherName || '',
+      direction: body.direction || '',
       course: Number(body.course || 1),
-      region: body.region || '',
+      roomNumber: Number(body.roomNumber || 101),
+      phone: body.phone || '',
       status: 'INSIDE',
       lastMovementAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
@@ -311,22 +387,42 @@ function handleMockFallback(config) {
     setLocalStudents(students);
 
     addLocalLog({
-      studentId: newStudent.id,
-      direction: 'INSIDE',
-      source: 'MANUAL',
-      student: { fullName: newStudent.fullName, roomNumber: newStudent.roomNumber },
+      type: 'CHECK_IN',
+      note: 'Yotoqxonaga ro\'yxatga olindi',
+      createdAt: new Date().toISOString(),
+      student: {
+        id: newStudent.id,
+        firstName: newStudent.firstName,
+        lastName: newStudent.lastName,
+        phone: newStudent.phone,
+        roomNumber: newStudent.roomNumber,
+      },
     });
 
     return {
-      data: { success: true, message: 'Talaba muvaffaqiyatli qo\'shildi.', data: newStudent },
+      data: { success: true, message: 'Talaba muvaffaqiyatli saqlandi.', data: newStudent },
       status: 201,
     };
   }
 
   // Reports
+  if (url === 'reports' && method === 'get') {
+    return {
+      data: {
+        success: true,
+        data: {
+          totalStudents: students.length,
+          totalRooms: 40,
+          rooms: [],
+        },
+      },
+      status: 200,
+    };
+  }
+
   if (url.startsWith('reports/')) {
     return {
-      data: { success: true, message: 'Hisobot shakllantirildi.' },
+      data: new Blob(['Hisobot'], { type: 'text/plain' }),
       status: 200,
     };
   }

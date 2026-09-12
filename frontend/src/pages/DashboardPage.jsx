@@ -55,11 +55,12 @@ export default function DashboardPage() {
         api.get('/students/logs', { params: { limit: 5 } }),
       ]);
 
-      if (statsRes.data.success) {
-        setStats(statsRes.data.data);
+      if (statsRes.data && statsRes.data.success) {
+        setStats(statsRes.data.data || {});
       }
-      if (logsRes.data.success) {
-        setRecentLogs(logsRes.data.data);
+      if (logsRes.data && logsRes.data.success) {
+        const raw = logsRes.data.data;
+        setRecentLogs(Array.isArray(raw) ? raw : (raw?.logs || []));
       }
     } catch (err) {
       console.error('Dashboard ma\'lumotlarini yuklashda xatolik:', err);
@@ -380,13 +381,13 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          {recentLogs.length === 0 ? (
+          {(!Array.isArray(recentLogs) || recentLogs.length === 0) ? (
             <div className="py-8 text-center text-xs text-gray-400">
               Hozircha harakatlar tarixi yo'q.
             </div>
           ) : (
             <div className="space-y-2">
-              {recentLogs.map((log) => {
+              {(Array.isArray(recentLogs) ? recentLogs : []).map((log) => {
                 const isCheckIn = log.type === 'CHECK_IN';
                 const st = log.student;
 
